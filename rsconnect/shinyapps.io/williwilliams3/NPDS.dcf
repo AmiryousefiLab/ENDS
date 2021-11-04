@@ -1,0 +1,13 @@
+name: NPDS
+title: NPDS
+username:
+account: williwilliams3
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 4018293
+bundleId: 4798969
+url: https://williwilliams3.shinyapps.io/NPDS/
+when: 1625740868.5813
+lastSyncTime: 1625740868.58133
+asMultiple: FALSE
+asStatic: FALSE
