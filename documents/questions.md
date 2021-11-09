@@ -1,42 +1,36 @@
 #### Q: *What should I do if the server crashes?*
 
-**A:** The web app might disconnect from the server, in that case please reload the page
+**A:** In some ocassional time the web app might disconnect from the server, in that case please reload the page.
 
 <br/>
 
-#### Q: *In the case my file upload type is not accepted by the app?*
+#### Q: *Why does my file fails to upload into the app?*
 
-**A:** Please make sure that the file format follows the details especified in **Help**, doses in first column in $\mu M$​, followed by samples and specify if header or not header. 
-
-<br/>
-
-#### Q: *After downloading, the downloaded plots look blurry*
-
-**A:** You can change the type of the plots to *.png* or *.jpg* and increase the resolution of the download to a higher number
+**A:** Please make sure that the file format follows the details especified in **Help**. Namely, the data input is a *csv* file with the first column as doses in micromolars​, followed by samples. It is possible to specif header is provided, by default it is true.
 
 <br/>
 
-#### Q: *Availability of toy data to play around?*
+#### Q: *How can I incresae the resolution of my plot?*
 
-**A:** Please feel free to download a toy example in the following link provied in the **Fit**  &#8594; **Upload** tab.
+**A:** You can change the type of the plots to *.png* or *.jpg* and increase the resolution of the download to a higher number.
+
+<br/>
+
+#### Q: *Is there data available for trying the app?*
+
+**A:** Yes, please feel free to download a example dataset in the following link provided in the **Fit**  &#8594; **Upload** tab.
 
 <br/>
 
 #### Q: *Is there the possibility to change the colors or format of the plot?*
 
-**A:** Refer to the **Options** tab in **ENDS** to customize the plots generated. 
+**A:** The colors are picked to be the most distinctived to this models, the source code can be downloaded and manupulited on your own machine. Differente formats for the plots generated please refer to **Options** tab in **ENDS**.
 
 <br/>
 
 #### Q: *How should I cite the data used in the Workshop?*
 
-**A:** For the data cite used in the workshop and the example provides cite the paper ["Intra-tumour diversification in colorectal cancer at the single-cell level"](https://www.nature.com/articles/s41586-018-0024-3).
-
-<br/>
-
-#### Q:  If citing the monotonic fit, what should I consider?*
-
-**A:** Cite the following article ["Intra-tumour diversification in colorectal cancer at the single-cell level"](https://www.nature.com/articles/s41586-018-0024-3).
+**A:** For citing the data that was used in the **Workshop** tab inside **Help**  used in the workshop pleas cite this paper ["Intra-tumour diversification in colorectal cancer at the single-cell level"](https://www.nature.com/articles/s41586-018-0024-3).
 
 <br/>
 

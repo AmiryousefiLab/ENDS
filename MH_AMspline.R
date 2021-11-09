@@ -282,7 +282,7 @@ npb_fit = function(block2, dose_dependent_auc=TRUE){
 
 plot_npbFit = function(block2, dose_dependent_auc=TRUE){
   
-  m = dim(block2)[2]-2
+  m = dim(block2)[2]-2 
   if(m==0) m <- m+1
   
   # Fit on means
@@ -316,15 +316,15 @@ plot_npbFit = function(block2, dose_dependent_auc=TRUE){
   p = plot_initialize(block2)
   p = plot_point_samples(p, block2)
   
-  colls <<- c(colls, "NPB"="purple", "IC50"="red")
+  colls <<- c(colls, "NP Bayesian"="purple", "IC50"="red")
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   
   
   # We can add scalecolormanual since there is no other layer  to add on top
   p <- p +  
-    ggtitle('Non Paremetric Bayesian fit') +
-    geom_function(fun = posterior_predictive_integrate, aes(colour='NPB')) + 
+    ggtitle('Nonparemetric Bayesian') +
+    geom_function(fun = posterior_predictive_integrate, aes(colour='NP Bayesian')) + 
     geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
     geom_vline(  aes(xintercept =  x_ic, colour="IC50"),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
@@ -495,19 +495,19 @@ make_plots = function(chain, K, lambda, logplotx=T, title='example'){
 
 # source('PreliminaryFunctions.R')
 # source('NPDS.R')
-# input = list(mean_switch=T, outlier_switch=T, onehunda_switch=T, dosedep_auc=T,
-#              checkgroup1 = c("Point samples" ,
-#                              "Spline fit" ,
-#                              "Min-max bands",
-#                              "Empirical viability bands",
-#                              "Drug span gradient",
-#                              "Relative doses")
-# )
-# df = openxlsx::read.xlsx('data/Drug_response_S8.xlsx', sheet = 1)
-# df_list  = read_excel_allsheets('data/Drug_response_S8.xlsx')
-# df_example = read.csv('data/Example1.csv')
-# 
-# block = df_example
-# block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
+input = list(mean_switch=T, outlier_switch=F, onehunda_switch=T, dosedep_auc=T,
+             checkgroup1 = c("Point samples" ,
+                             "Spline fit" ,
+                             "Min-max bands",
+                             "Empirical viability bands",
+                             "Drug span gradient",
+                             "Relative doses")
+)
+df = openxlsx::read.xlsx('data/Drug_response_S8.xlsx', sheet = 1)
+df_list  = read_excel_allsheets('data/Drug_response_S8.xlsx')
+df_example = read.csv('data/Example1.csv')
+block =extract_dose_block(df_list, '5FU', 'P1', 'T1', 1)
+block = df_example
+block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
 # 
 # p = plot_npbFit(block2)

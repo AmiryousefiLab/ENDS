@@ -84,7 +84,7 @@ extract_dose_block = function(df_list, drug, patient, treatment, sample){
   return(block2)
 }
 
-preprocess_data = function(block, mean_samples = TRUE, keep_outliers = TRUE, over_viability = TRUE){
+preprocess_data = function(block, mean_samples = TRUE, keep_outliers = TRUE, over_viability = TRUE, drop_values = TRUE){
   m =  dim(block)[2]
   names(block)[1] = 'doses'
   block <- block %>% 
@@ -93,7 +93,7 @@ preprocess_data = function(block, mean_samples = TRUE, keep_outliers = TRUE, ove
   block2 = block
   
   # Further on can mark outliers on plot in a different color
-  if(keep_outliers==FALSE & m>2){
+  if(keep_outliers==FALSE & m>2 & drop_values==T){
     for(j in 2:m){
       y_toclean = block[,j]
       mu = mean(y_toclean, na.rm = T)
@@ -101,6 +101,18 @@ preprocess_data = function(block, mean_samples = TRUE, keep_outliers = TRUE, ove
       y_clean = y_toclean
       y_clean[(y_toclean-mu)>2*stdev] <- NA
       y_clean[(y_toclean-mu)< -2*stdev] <- NA
+      block2[,j] = y_clean
+    }
+  }
+  
+  if(keep_outliers==FALSE & m>2 & drop_values==F){
+    for(j in 2:m){
+      y_toclean = block[,j]
+      mu = mean(y_toclean, na.rm = T)
+      stdev = sd(y_toclean, na.rm = T)
+      y_clean = y_toclean
+      y_clean[(y_toclean-mu)>2*stdev] <- 2*stdev
+      y_clean[(y_toclean-mu)< -2*stdev] <- -2*stdev
       block2[,j] = y_clean
     }
   }

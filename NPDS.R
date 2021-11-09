@@ -51,7 +51,7 @@ plot_initialize = function(block2){
     scale_x_log10(n.breaks=12) + 
     ylim(min(block2[,2:(m+1)], na.rm=T), y_lim_right) +
     ylab('Drug response') + 
-    ggtitle( 'Nonparametric fit' ) +
+    ggtitle( 'Nonparametric spline' ) +
     xlab(expression( paste(italic(Dose),phantom(x) ,mu, M )) ) +
     theme(plot.title = element_text(face="bold", size = 25, hjust=0.5),
           axis.title = element_text(face="italic", 
@@ -179,12 +179,12 @@ plot_NPDS = function(p, block2, dose_dependent_auc=TRUE){
   text3 = round(auc)
   text = sprintf("atop(atop(IC[50] == %s, AUC == %s),atop( MSE == %s, \t) )",text1, text3, text2)
   
-  colls <<- c(colls, "Nonparam"="darkblue", "IC50"="red")
+  colls <<- c(colls, "NP Spline"="darkblue", "IC50"="red")
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   alphas <<- c(alphas, 1, 1)
   p <-  p + 
-    geom_line(aes(colour='Nonparam') , size = 0.8) +
+    geom_line(aes(colour='NP Spline') , size = 0.8) +
     geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
     geom_vline(  aes(xintercept =  x_ic, colour="IC50"),  linetype="dotted", show.legend = F) +
     ggrepel::geom_text_repel(aes(label=round(y_mean) ), size=3.0, force_pull = 2, seed=42) +

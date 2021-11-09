@@ -89,16 +89,16 @@ plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
   p = plot_initialize(block2)
   p = plot_point_samples(p, block2)
   
-  colls <<- c(colls, "Sigmoid"="red", "IC50Sigm"="red")
+  colls <<- c(colls, "P Logistic"="red", "IC50PL"="red")
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   
   
   # We can add scalecolormanual since there is no other layer  to add on top
   p <- p +  
-    geom_function(fun = m0$curve[[1]], aes(colour='Sigmoid')) + 
+    geom_function(fun = m0$curve[[1]], aes(colour='P Logistic')) + 
     geom_hline( yintercept =  y_ic_sigm, color='red',  linetype="dotted") +
-    geom_vline(  aes(xintercept =  x_ic_sigm, colour="IC50Sigm"),  linetype="dotted", show.legend = F) + 
+    geom_vline(  aes(xintercept =  x_ic_sigm, colour="IC50PL"),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
              hjust=1,
              vjust=1,
@@ -144,15 +144,15 @@ plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
   }
   
   
-  colls <<- c(colls, "Monotone"="darkgreen", "IC50Mono"="darkgreen")
+  colls <<- c(colls, "NP Monotone"="darkgreen", "IC50NPM"="darkgreen")
   linetypes <<- c(linetypes, "solid","dotted")
   shapes <<- c(shapes, NA, NA)
   
   options(warn=-1)
   p = p +
-    geom_line(aes(block2$doses, block2_yf, colour ='Monotone')) + 
+    geom_line(aes(block2$doses, block2_yf, colour ='NP Monotone')) + 
     geom_hline( yintercept =  y_ic_mono, color='darkgreen',  linetype="dotted") +
-    geom_vline(  aes(xintercept =  x_ic_mono, colour="IC50Mono"),  linetype="dotted", show.legend = F) + 
+    geom_vline(  aes(xintercept =  x_ic_mono, colour="IC50NPM"),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =min(block2$doses), 
              hjust=-0.1,
              vjust=-0.1,
@@ -184,7 +184,7 @@ plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
     y_lim_right = max(block2[,2:(m+1)], na.rm=T)
   }
   
-  colls <<- c(colls, "NPB"="purple", "IC50Npb"="purple")
+  colls <<- c(colls, "NP Bayesian"="purple", "IC50NPB"="purple")
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   
@@ -192,9 +192,9 @@ plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
   # We can add scalecolormanual since there is no other layer  to add on top
   p <- p +  
     
-    geom_function(fun = posterior_predictive_integrate, aes(colour='NPB')) + 
+    geom_function(fun = posterior_predictive_integrate, aes(colour='NP Bayesian')) + 
     geom_hline( yintercept =  y_ic, color='purple',  linetype="dotted") +
-    geom_vline(  aes(xintercept =  x_ic, colour="IC50Npb"),  linetype="dotted", show.legend = F) + 
+    geom_vline(  aes(xintercept =  x_ic, colour="IC50NPB"),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =min(block2$doses), 
              hjust=-0.1,
              vjust=1,
@@ -217,14 +217,13 @@ plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
 p1_mod = p1  + theme(axis.title.x=element_blank(),
                             axis.text.x=element_blank(),
                             axis.ticks.x=element_blank())+
-  ggtitle('Nonparametric, monotone and logistic fit')
+  ggtitle('NP Spline, NP Monotone, \n NP Bayesian and Parametric  Logistic')
   
 p_t = plot_sigmodiMonotoneNpbFit(block2) +
   labs(title = NULL)
 
 library(gridExtra)
-grid.newpage()
-p_paper = grid.arrange(rbind(ggplotGrob(p1_mod), ggplotGrob(p_t), size = "first"))
+p_paper = gridExtra::grid.arrange(rbind(ggplotGrob(p1_mod), ggplotGrob(p_t), size = "first"))
 
 wid  = 6*4
 hei = 4*4

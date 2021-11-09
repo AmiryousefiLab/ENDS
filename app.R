@@ -135,18 +135,22 @@ ui <- fluidPage(
                                        # Horizontal line ----
                                        tags$hr(),
                                        p("Please upload a", em(".csv") ,"file with drug-response data following the format described in",  
-                                       strong("Help"), ",
-                                        or download the example dataset found:",
-                                       downloadLink('downloadData2', strong('Click here ') )
+                                       strong("Help,"), "
+                                        or download the example data set found in",
+                                       downloadLink('downloadData2', strong(' here.') )
                                          )
                                         
                               ),
                               tabPanel(strong("Options"), br(),
-                                       
+                                       p("By default Nonparametric spline is selected, select other round checkmarks for other models. 
+                                       Note that the nonparametric Bayesian model takes around 10 seconds to fit.
+                                         The checkboxes add layers to the spline plot. The switches control the processing of the input data. 
+                                         A complete explanation of each option is found in ",strong('Help.')),
                                        fluidRow(column(10,
                                                        # Check box for Sigmoid Fitting
+                                                       strong('Nonparametric spline model'),
                                                        prettyCheckbox(inputId = "SplinePlot",
-                                                                      label = "Spline fit",
+                                                                      label = "Nonparametric spline",
                                                                       value = TRUE, 
                                                                       bigger = TRUE, 
                                                                       shape = 'round',
@@ -157,7 +161,7 @@ ui <- fluidPage(
                                                        ),
                                                        prettyCheckboxGroup(
                                                          inputId = "checkgroup1",
-                                                         label = "Plot Overlays",
+                                                         label = "Plot Layers",
                                                          choices = c("Point samples",
                                                                      "Spline fit",
                                                                      "Min-max bands",
@@ -168,11 +172,12 @@ ui <- fluidPage(
                                                          icon = icon("check"),
                                                          animation = "tada",
                                                          status = "info",
-                                                         selected = c("Point samples","Spline fit")
+                                                         selected = c("Point samples", "Spline fit")
                                                        ),
+                                                       strong('Extra Models'),
                                                        # Check box for Monotone Fit
                                                        prettyCheckbox(inputId = "MonotonePlot",
-                                                                      label = "Monotone fit",
+                                                                      label = "Nonparamatric monotonic",
                                                                       value = FALSE, 
                                                                       bigger = TRUE, 
                                                                       shape = 'round',
@@ -183,7 +188,7 @@ ui <- fluidPage(
                                                        ),
                                                        # Check box for Sigmoid Fitting
                                                        prettyCheckbox(inputId = "SigmoidPlot",
-                                                                      label = "Logistic fit",
+                                                                      label = "Parametric logistic",
                                                                       value = FALSE, 
                                                                       bigger = TRUE, 
                                                                       shape = 'round',
@@ -194,7 +199,7 @@ ui <- fluidPage(
                                                        ),
                                                        # Check box for NPB Fitting
                                                        prettyCheckbox(inputId = "NPBPlot",
-                                                                      label = "Nonparamtric bayesian fit",
+                                                                      label = "Nonparametric Bayesian",
                                                                       value = FALSE, 
                                                                       bigger = TRUE, 
                                                                       shape = 'round',
@@ -203,6 +208,7 @@ ui <- fluidPage(
                                                                       animation = 'tada',
                                                                       icon = icon('check')
                                                        ),
+                                                       strong('Data Processing'),
                                                        materialSwitch(inputId = "mean_switch", 
                                                                       label = "Median / Mean",
                                                                       status = "info",
@@ -261,12 +267,38 @@ ui <- fluidPage(
                tabPanel(strong("Help"),
                         tabsetPanel(
                           tabPanel(
-                            strong("Instructions"),
+                            strong("Data Instuction and Plot Options"),
                             br(),
                             tags$div(includeMarkdown("documents/help1.md"), style = "max-width:800px;"),
-                            p("An Example dataset can be found:",
-                              downloadLink('downloadData', strong('Click here! ')) ),
+                            p("An Example dataset can be found in ",
+                              downloadLink('downloadData', strong('here ')) ),
                             tags$div(includeMarkdown("documents/help2.md"), style = "max-width:800px;")    
+                          ),
+                          tabPanel(
+                            strong("Model Specifications"),
+                            tabsetPanel(
+                              tabPanel(
+                                strong('Nonparametric Spline'),
+                                br(),
+                                tags$div(includeMarkdown("documents/models1.md"), style = "max-width:800px;")
+                              ),
+                              tabPanel(
+                                strong('Parametric Logistic'),
+                                br(),
+                                tags$div(includeMarkdown("documents/models2.md"), style = "max-width:800px;")
+                              ),
+                              tabPanel(
+                                strong('Nonparametric Monotonic'),
+                                br(),
+                                tags$div(includeMarkdown("documents/models3.md"), style = "max-width:800px;")
+                              ),
+                              tabPanel(
+                                strong('Nonparametric Bayesian'),
+                                br(),
+                                tags$div(includeMarkdown("documents/models4.md"), style = "max-width:800px;")
+                              )
+                            ),
+                            
                           ),
                           tabPanel(
                             strong("Workshop"),
@@ -274,6 +306,9 @@ ui <- fluidPage(
                             sidebarLayout(
                               sidebarPanel( width = 4, br(),
                                             titlePanel("Desired Drug-Patient Characteristics"),
+                                            p('Drugs, patients, treatments and samples are options from the data found in the paper 
+                                              "Intra-tumour diversification in colorectal cancer at the single-cell level" (2018), selecting different options will 
+                                              result in a different model fit, note that not all combinations exist in the data.' ),
                                             prettyRadioButtons(
                                               inputId = "Drug",
                                               label = "Select Drug:",
@@ -312,8 +347,9 @@ ui <- fluidPage(
                                             tags$hr(),
                                             actionButton("add_graph1", "Plot", icon = icon("paint-brush")),
                                             tags$hr(),
+                                            strong('Nonparametric spline model'),
                                             prettyCheckbox(inputId = "SplinePlot_",
-                                                           label = "Spline fit",
+                                                           label = "Nonparametric spline",
                                                            value = TRUE, 
                                                            bigger = TRUE, 
                                                            shape = 'round',
@@ -324,7 +360,7 @@ ui <- fluidPage(
                                             ),
                                             prettyCheckboxGroup(
                                               inputId = "checkgroup1_",
-                                              label = "Plot Overlays",
+                                              label = "Plot Layers",
                                               choices = c("Point samples",
                                                           "Spline fit",
                                                           "Min-max bands",
@@ -338,8 +374,9 @@ ui <- fluidPage(
                                               selected = c("Point samples","Spline fit")
                                             ),
                                             # Check box for Monotone Fit
+                                            strong('Extra Models'),
                                             prettyCheckbox(inputId = "MonotonePlot_",
-                                                           label = "Monotone fit",
+                                                           label = "Nonparametric monotonic",
                                                            value = FALSE, 
                                                            bigger = TRUE, 
                                                            shape = 'round',
@@ -350,7 +387,7 @@ ui <- fluidPage(
                                             ),
                                             # Check box for Sigmoid Fitting
                                             prettyCheckbox(inputId = "SigmoidPlot_",
-                                                           label = "Logistic fit",
+                                                           label = "Parametric logistic",
                                                            value = FALSE, 
                                                            bigger = TRUE, 
                                                            shape = 'round',
@@ -361,7 +398,7 @@ ui <- fluidPage(
                                             ),
                                             # Check box for Nonparametric Bayesian Fitting
                                             prettyCheckbox(inputId = "NPBPlot_",
-                                                           label = "Nonparamtric bayesian fit",
+                                                           label = "Nonparametric Bayesian",
                                                            value = FALSE, 
                                                            bigger = TRUE, 
                                                            shape = 'round',
@@ -370,6 +407,7 @@ ui <- fluidPage(
                                                            animation = 'tada',
                                                            icon = icon('check')
                                             ),
+                                            strong('Data Processing'),
                                             materialSwitch(inputId = "mean_switch_", 
                                                            label = "Median / Mean",
                                                            status = "info",
@@ -475,6 +513,8 @@ server <- function(input, output) {
     observeEvent(input$add_graph1, {
     
       output$Plot4 <- renderPlot({
+        showNotification("Generating plot...", duration = NULL, id = "message")
+        
           drug = d1()
           patient = p1()
           treatment = t1()
@@ -524,7 +564,7 @@ server <- function(input, output) {
           }
           if( (!check_box2) & (!check_box0) & (!check_box1) &  check_box3 ){
             block = extract_dose_block(df_list, drug, patient, treatment, samp)
-            block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch )
+            block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch, drop_values=F )
             if(is.null(block)){
               showNotification('Please select other drug-patient characteristics')
               return('')
@@ -533,6 +573,7 @@ server <- function(input, output) {
           }
           
           p1
+          
           })
       
       output$Plot5 <- renderPlot({
@@ -580,9 +621,11 @@ server <- function(input, output) {
           }
           p2 = plot_sigmodiFit(block2, dosedependent_auc)
         }
-        if(!check_box2 & !check_box0 & check_box1 & check_box3){
+        if((!check_box2 & !check_box0 & check_box1 & check_box3) |
+           (!check_box2 & check_box0 & !check_box1 & check_box3) |
+           (check_box2 & !check_box0 & !check_box1 & check_box3) ) {
           block = extract_dose_block(df_list, drug, patient, treatment, samp)
-          block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch )
+          block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch , drop_values=F)
           if(is.null(block)){
             showNotification('Please select other drug-patient characteristics')
             return('')
@@ -621,37 +664,24 @@ server <- function(input, output) {
             p3 = plot_sigmodiFit(block2, dosedependent_auc)
           }
           
-          if( !check_box2 & check_box0 & check_box1 & check_box3){
+          if( (!check_box2 & check_box0 & check_box1 & check_box3) |
+              (check_box2 & !check_box0 & check_box1 & check_box3) |
+              (check_box2 & check_box0 & !check_box1 & check_box3)
+              ){
             block = extract_dose_block(df_list, drug, patient, treatment, samp)
             if(is.null(block)){
               showNotification('Please select other drug-patient characteristics')
               return('')
             }
-            block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch )
+            block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch, drop_values=F )
             p3 = plot_npbFit(block2, dosedependent_auc)
           }
-          if( check_box2 & !check_box0 & check_box1 & check_box3){
-            block = extract_dose_block(df_list, drug, patient, treatment, samp)
-            if(is.null(block)){
-              showNotification('Please select other drug-patient characteristics')
-              return('')
-            }
-            block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch )
-            p3 = plot_npbFit(block2, dosedependent_auc)
-          }
-          if( check_box2 & check_box0 & !check_box1 & check_box3){
-            block = extract_dose_block(df_list, drug, patient, treatment, samp)
-            if(is.null(block)){
-              showNotification('Please select other drug-patient characteristics')
-              return('')
-            }
-            block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch )
-            p3 = plot_npbFit(block2, dosedependent_auc)
-          }
+          
           if(!is.null(p3)) p3
       })
       
         output$Plot6.1 <- renderPlot({
+          
           drug = d1()
           patient = p1()
           treatment = t1()
@@ -667,20 +697,23 @@ server <- function(input, output) {
           onehunda_switch = hs_()
           dosedependent_auc = dd_()
           
+          p4=NULL
           if(check_box0 & check_box1 & check_box2 & check_box3){
             block = extract_dose_block(df_list, drug, patient, treatment, samp)
             if(is.null(block)){
               showNotification('Please select other drug-patient characteristics')
               return('')
             }
-            block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch )
+            block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch, drop_values=F )
             
             p4 = plot_npbFit(block2, dosedependent_auc)
             p4
           }
-          
+          showNotification("Plot generated", duration = 1, id = "message")
+          if(!is.null(p4)) p4
           
         })  
+        
         
       # For downloading once plot is generated
       output$download <- downloadHandler(
@@ -707,6 +740,7 @@ server <- function(input, output) {
           p2 = plot_sigmodiFit(block2)
           p3 = plot_monotoneFit(block2)
           if(input$NPBPlot){
+            block2 = preprocess_data(block, drop_values=F)
             p4 = plot_npbFit(block2)  
           }
           
@@ -797,7 +831,7 @@ server <- function(input, output) {
       
       output$Plot1 <- renderPlot({
         
-        
+        showNotification("Generating plot...", duration = NULL, id = "message")
         check_boxes  = cbs()
         
         check_box0 = cb0()
@@ -830,8 +864,10 @@ server <- function(input, output) {
           p1 = plot_sigmodiFit(block2, dosedependent_auc)
         }
         if( (!check_box2) & (!check_box0) & (!check_box1) & check_box3 ){
+          block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
           p1 = plot_npbFit(block2, dosedependent_auc)
         }
+        
         p1
       })
       
@@ -865,7 +901,10 @@ server <- function(input, output) {
         if(check_box2 & !check_box0 & check_box1){
           p2 = plot_sigmodiFit(block2, dosedependent_auc)
         }
-        if(!check_box2 & !check_box0 & check_box1 & check_box3){
+        if((!check_box2 & !check_box0 & check_box1 & check_box3) |
+           (!check_box2 & check_box0 & !check_box1 & check_box3) |
+           (check_box2 & !check_box0 & !check_box1 & check_box3)){
+          block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
           p2 = plot_npbFit(block2, dosedependent_auc)
         }
         
@@ -897,13 +936,10 @@ server <- function(input, output) {
         if(check_box2 & check_box0 & check_box1){
           p3 = plot_sigmodiFit(block2, dosedependent_auc)
         }
-        if( !check_box2 & check_box0 &  check_box1 & check_box3){
-          p3 = plot_npbFit(block2, dosedependent_auc)
-        }
-        if( check_box2 & !check_box0 &  check_box1 & check_box3){
-          p3 = plot_npbFit(block2, dosedependent_auc)
-        }
-        if( check_box2 & check_box0 &  !check_box1 & check_box3){
+        if( (!check_box2 & check_box0 & check_box1 & check_box3) |
+            (check_box2 & !check_box0 & check_box1 & check_box3) |
+            (check_box2 & check_box0 & !check_box1 & check_box3) ){
+          block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
           p3 = plot_npbFit(block2, dosedependent_auc)
         }
         p3
@@ -929,11 +965,12 @@ server <- function(input, output) {
           showNotification('Please upload a file')
           return('')
         }
-        block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
+        block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
         
         if(check_box2 & check_box0 & check_box1 & check_box3){
           p4 = plot_npbFit(block2, dosedependent_auc)
         }
+        showNotification("Plot generated", duration = 1, id = "message")
         p4
         
       })
@@ -962,6 +999,7 @@ server <- function(input, output) {
           p2 = plot_monotoneFit(block2, input$dosedep_auc)
           p3 = plot_sigmodiFit(block2, input$dosedep_auc)
           if(input$NPBPlot){
+            block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch, drop_values=F)
             p4 = plot_npbFit(block2, input$dosedep_auc)
           }
           
