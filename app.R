@@ -148,9 +148,9 @@ ui <- fluidPage(
                                          A complete explanation of each option is found in ",strong('Help.')),
                                        fluidRow(column(10,
                                                        # Check box for Sigmoid Fitting
-                                                       strong('Nonparametric spline model'),
+                                                       strong('Nonparametric Spline Model'),
                                                        prettyCheckbox(inputId = "SplinePlot",
-                                                                      label = "Nonparametric spline",
+                                                                      label = "Nonparametric Spline",
                                                                       value = TRUE, 
                                                                       bigger = TRUE, 
                                                                       shape = 'round',
@@ -162,22 +162,22 @@ ui <- fluidPage(
                                                        prettyCheckboxGroup(
                                                          inputId = "checkgroup1",
                                                          label = "Plot Layers",
-                                                         choices = c("Point samples",
-                                                                     "Spline fit",
-                                                                     "Min-max bands",
-                                                                     "Empirical viability bands",
-                                                                     "Drug span gradient",
-                                                                     "Absolute doses",
-                                                                     "Relative doses"                                                                     ),
+                                                         choices = c("Point Samples",
+                                                                     "Spline",
+                                                                     "Min-Max Bands",
+                                                                     "Empirical Viability Bands",
+                                                                     "Drug Span Gradient",
+                                                                     "Absolute Doses",
+                                                                     "Relative Doses"),
                                                          icon = icon("check"),
                                                          animation = "tada",
                                                          status = "info",
-                                                         selected = c("Point samples", "Spline fit")
+                                                         selected = c("Point Samples", "Spline")
                                                        ),
                                                        strong('Extra Models'),
                                                        # Check box for Monotone Fit
                                                        prettyCheckbox(inputId = "MonotonePlot",
-                                                                      label = "Nonparamatric monotonic",
+                                                                      label = "Nonparamatric Monotonic",
                                                                       value = FALSE, 
                                                                       bigger = TRUE, 
                                                                       shape = 'round',
@@ -188,7 +188,7 @@ ui <- fluidPage(
                                                        ),
                                                        # Check box for Sigmoid Fitting
                                                        prettyCheckbox(inputId = "SigmoidPlot",
-                                                                      label = "Parametric logistic",
+                                                                      label = "Parametric Logistic",
                                                                       value = FALSE, 
                                                                       bigger = TRUE, 
                                                                       shape = 'round',
@@ -215,7 +215,7 @@ ui <- fluidPage(
                                                                       right=TRUE,
                                                                       value = TRUE ),
                                                        materialSwitch(inputId = "outlier_switch", 
-                                                                      label = "Outliers Kept",
+                                                                      label = "Outliers kept",
                                                                       status = "info",
                                                                       right=TRUE,
                                                                       value = TRUE ),
@@ -239,7 +239,7 @@ ui <- fluidPage(
                                                     choices = c("pdf", "png", "jpeg")),
                                        em("NB! If 'pdf' format was selected, the resolution setting will not work."),
                                        numericInput(inputId = "resolution", label = "Resolution (DPI)", value = 300, min = 30, max = 1000, step = 10),
-                                       downloadButton(outputId = "download", label = "Download")
+                                       downloadButton(outputId = "download", label = "Download Plot")
                                        
                               )
                               
@@ -266,15 +266,21 @@ ui <- fluidPage(
                           ))),
                tabPanel(strong("Help"),
                         br(),
-                        p('This section'),
+                        p('This section is a manual of how to upload the data, the different plot options and a detailed explanation of the models. It also holds
+                          a Workshop for playing around with the tool with preloaded data.'),
                         tabsetPanel(
                           tabPanel(
-                            strong("Data Instuctions and Plot Options"),
+                            strong("Input and Output"),
                             br(),
                             tags$div(includeMarkdown("documents/help1.md"), style = "max-width:800px;"),
                             p("An Example dataset can be found in ",
                               downloadLink('downloadData', strong('here.')) ),
                             tags$div(includeMarkdown("documents/help2.md"), style = "max-width:800px;")    
+                          ),
+                          tabPanel(
+                            strong("Plot Options"),
+                            br(),
+                            tags$div(includeMarkdown("documents/plotoptions.md"), style = "max-width:800px;"),
                           ),
                           tabPanel(
                             strong("Model Specifications"),
@@ -349,9 +355,9 @@ ui <- fluidPage(
                                             tags$hr(),
                                             actionButton("add_graph1", "Plot", icon = icon("paint-brush")),
                                             tags$hr(),
-                                            strong('Nonparametric spline model'),
+                                            strong('Nonparametric Spline Model'),
                                             prettyCheckbox(inputId = "SplinePlot_",
-                                                           label = "Nonparametric spline",
+                                                           label = "Nonparametric Spline",
                                                            value = TRUE, 
                                                            bigger = TRUE, 
                                                            shape = 'round',
@@ -363,22 +369,22 @@ ui <- fluidPage(
                                             prettyCheckboxGroup(
                                               inputId = "checkgroup1_",
                                               label = "Plot Layers",
-                                              choices = c("Point samples",
-                                                          "Spline fit",
-                                                          "Min-max bands",
-                                                          "Empirical viability bands",
-                                                          "Drug span gradient",
-                                                          "Absolute doses",
-                                                          "Relative doses"                                                          ),
+                                              choices = c("Point Samples",
+                                                          "Spline",
+                                                          "Min-Max Bands",
+                                                          "Empirical Viability Bands",
+                                                          "Drug Span Gradient",
+                                                          "Absolute Doses",
+                                                          "Relative Doses"),
                                               icon = icon("check"),
                                               animation = "tada",
                                               status = "info",
-                                              selected = c("Point samples","Spline fit")
+                                              selected = c("Point Samples","Spline")
                                             ),
                                             # Check box for Monotone Fit
                                             strong('Extra Models'),
                                             prettyCheckbox(inputId = "MonotonePlot_",
-                                                           label = "Nonparametric monotonic",
+                                                           label = "Nonparametric Monotonic",
                                                            value = FALSE, 
                                                            bigger = TRUE, 
                                                            shape = 'round',
@@ -389,7 +395,7 @@ ui <- fluidPage(
                                             ),
                                             # Check box for Sigmoid Fitting
                                             prettyCheckbox(inputId = "SigmoidPlot_",
-                                                           label = "Parametric logistic",
+                                                           label = "Parametric Logistic",
                                                            value = FALSE, 
                                                            bigger = TRUE, 
                                                            shape = 'round',
@@ -416,7 +422,7 @@ ui <- fluidPage(
                                                            right=TRUE,
                                                            value = TRUE ),
                                             materialSwitch(inputId = "outlier_switch_", 
-                                                           label = "Outliers Kept",
+                                                           label = "Outliers kept",
                                                            status = "info",
                                                            right=TRUE,
                                                            value = TRUE ),
@@ -544,6 +550,7 @@ server <- function(input, output) {
               return('')
             }
             block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch )
+            # check_boxes = c("Point Samples","Spline"); dosedependent_auc=T
             p1 = PlotOverlay(block2, check_boxes, dosedependent_auc)
           }
           if( (!check_box2) & check_box0){
@@ -736,16 +743,15 @@ server <- function(input, output) {
           # Correct block 2 for input signals when added
           block = extract_dose_block(df_list, input$Drug, input$Patient, input$Treatment, input$Sample)
           block2 = preprocess_data(block)
-          
           p1 = PlotOverlay(block2, input$checkgroup1)
-          
+
           p2 = plot_sigmodiFit(block2)
           p3 = plot_monotoneFit(block2)
           if(input$NPBPlot){
             block2 = preprocess_data(block, drop_values=F)
-            p4 = plot_npbFit(block2)  
+            p4 = plot_npbFit(block2)
           }
-          
+          p1 = output$Plot4
           
           wid  = 6*4
           hei = 4*4
@@ -817,7 +823,7 @@ server <- function(input, output) {
           }
           
           # 4 plots
-          if(input$SplinePlot & input$SigmoidPlot & !input$MonotonePlot & input$NPBPlot){
+          if(input$SplinePlot & input$SigmoidPlot & input$MonotonePlot & input$NPBPlot){
             p = gridExtra::grid.arrange(p1, p2, p3, p4, ncol=1, nrow=4, widths = wid, heights = c(hei,hei,hei,hei) )
             ggsave(file,plot = p,device = input$file_type,dpi = input$resolution,width = wid, height = hei*4, unit = 'cm' )
           }
@@ -989,26 +995,30 @@ server <- function(input, output) {
           return(paste(file, input$file_type, sep="."))
         },
         
+        # Download data corresponding to Input File
         content = function(file){
           showNotification("Downloading plot...", duration = NULL, id = "message")
           
           # Note that it does not exist for all parameter combinations
+          # So I don't have to generate the plots again
+           # I could define the plots in reactive variables only once, p1, p2, p3 and p4
+           # I might have to do this for computing the statistics and downloading them efficiently
           block = mydata()
           block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
-          
-          
           p1 = PlotOverlay(block2, input$checkgroup1, input$dosedep_auc)
-          p2 = plot_monotoneFit(block2, input$dosedep_auc)
-          p3 = plot_sigmodiFit(block2, input$dosedep_auc)
+          p2 = plot_sigmodiFit(block2, input$dosedep_auc)
+          p3 = plot_monotoneFit(block2, input$dosedep_auc)
           if(input$NPBPlot){
             block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch, drop_values=F)
             p4 = plot_npbFit(block2, input$dosedep_auc)
           }
           
+          p1 = output$Plot1
+          
           wid  = 6*4
           hei = 4*4
           
-          # This can be inside auxiliary function
+          # This could be inside auxiliary function
           # Only 1 plot
           if(input$SplinePlot & !input$SigmoidPlot & !input$MonotonePlot & !input$NPBPlot){
             p = gridExtra::grid.arrange(p1, ncol=1, widths = wid, heights = hei)
@@ -1075,9 +1085,10 @@ server <- function(input, output) {
           }
           
           # 4 plots
-          if(input$SplinePlot & input$SigmoidPlot & !input$MonotonePlot & input$NPBPlot){
+          if(input$SplinePlot & input$SigmoidPlot & input$MonotonePlot & input$NPBPlot){
             p = gridExtra::grid.arrange(p1, p2, p3, p4, ncol=1, nrow=4, widths = wid, heights = c(hei,hei,hei,hei) )
             ggsave(file,plot = p,device = input$file_type,dpi = input$resolution,width = wid, height = hei*4, unit = 'cm' )
+            
           }
           
           

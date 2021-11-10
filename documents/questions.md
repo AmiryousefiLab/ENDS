@@ -34,3 +34,9 @@
 
 <br/>
 
+#### Q: *Why is the model fit failing when we select many preprocessing data switches?*
+
+**A:** When outliers are removed and the data is close too being constant the optimizers that solve for the models parameters might fail to converge, or the MH-algorithm that fits the Bayesian model might fail to give good estimates as well. Please feel free to try less preprocessing or download the post-processsed data from **Downloads** and running the codes in your own machine, for example increasing the lenght of the chain in *npB* might produce better estimates. 
+
+<br/>
+
