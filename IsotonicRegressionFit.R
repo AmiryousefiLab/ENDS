@@ -130,14 +130,14 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE){
   p = plot_initialize(block2)
   p = plot_point_samples(p, block2)
   
-  colls <<- c(colls, "NP Monotone"="darkgreen","IC50"="red")
+  colls <<- c(colls, "NPM"="darkgreen","IC50"="red")
   linetypes <<- c(linetypes, "solid","dotted")
   shapes <<- c(shapes, NA, NA)
   
   options(warn=-1)
   p = p +
-    ggtitle('Nonparametric Monotone') +
-    geom_line(aes(block2$doses, block2_yf, colour ='NP Monotone')) + 
+    ggtitle('Nonparametric Monotonic') +
+    geom_line(aes(block2$doses, block2_yf, colour ='NPM')) + 
     geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
     geom_vline(  aes(xintercept =  x_ic, colour="IC50" ),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 

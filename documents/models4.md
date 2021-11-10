@@ -1,4 +1,4 @@
-#### Nonparametric Bayesian Model
+#### Nonparametric Bayesian Model *(NPB)*
 
  Given points $(x_i, y_i)$ for $i=1..n$, with knots $K=\{k_i\}_{i=1}^J$ and parameter $\lambda>0$ we will model the relation between *x* and *y* with the Bayesian Hierarchical model
 

@@ -102,7 +102,7 @@ ui <- fluidPage(
     
     tags$div(id = "title",
              tags$h1(id = "tool_name", "The ENDS", style = "color:#BD3C3C;"),
-             tags$h4(id = "tool_exp", tags$em(" An online suite for the Epistemic Nonparametric Drug response Scoring"),
+             tags$h4(id = "tool_exp", tags$em(" A tool for the Epistemic Nonparametric Drug-response Scoring"),
                      style = "color:#551414;")
     ),
     
@@ -265,13 +265,15 @@ ui <- fluidPage(
                             )
                           ))),
                tabPanel(strong("Help"),
+                        br(),
+                        p('This section'),
                         tabsetPanel(
                           tabPanel(
-                            strong("Data Instuction and Plot Options"),
+                            strong("Data Instuctions and Plot Options"),
                             br(),
                             tags$div(includeMarkdown("documents/help1.md"), style = "max-width:800px;"),
                             p("An Example dataset can be found in ",
-                              downloadLink('downloadData', strong('here ')) ),
+                              downloadLink('downloadData', strong('here.')) ),
                             tags$div(includeMarkdown("documents/help2.md"), style = "max-width:800px;")    
                           ),
                           tabPanel(

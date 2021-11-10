@@ -56,7 +56,7 @@ plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE){
   p = plot_initialize(block2)
   p = plot_point_samples(p, block2)
   
-  colls <<- c(colls, "P Logistic"="red", "IC50"="red")
+  colls <<- c(colls, "PL"="red", "IC50"="red")
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   
@@ -64,7 +64,7 @@ plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE){
   # We can add scalecolormanual since there is no other layer  to add on top
   p <- p +  
     ggtitle('Parametric Logistic') +
-    geom_function(fun = m0$curve[[1]], aes(colour='P Logistic')) + 
+    geom_function(fun = m0$curve[[1]], aes(colour='PL')) + 
     geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
     geom_vline(  aes(xintercept =  x_ic, colour="IC50"),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 

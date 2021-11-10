@@ -316,7 +316,7 @@ plot_npbFit = function(block2, dose_dependent_auc=TRUE){
   p = plot_initialize(block2)
   p = plot_point_samples(p, block2)
   
-  colls <<- c(colls, "NP Bayesian"="purple", "IC50"="red")
+  colls <<- c(colls, "NPB"="purple", "IC50"="red")
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   
@@ -324,7 +324,7 @@ plot_npbFit = function(block2, dose_dependent_auc=TRUE){
   # We can add scalecolormanual since there is no other layer  to add on top
   p <- p +  
     ggtitle('Nonparemetric Bayesian') +
-    geom_function(fun = posterior_predictive_integrate, aes(colour='NP Bayesian')) + 
+    geom_function(fun = posterior_predictive_integrate, aes(colour='NPB')) + 
     geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
     geom_vline(  aes(xintercept =  x_ic, colour="IC50"),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 

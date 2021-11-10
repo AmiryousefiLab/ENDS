@@ -1,4 +1,4 @@
-#### Nonparametric Spline
+#### Nonparametric Spline *(NPS)*
 
 Given a sample of doses $d_1,..,d_n$ and response matrix $(y_{ij})$ for $i=1,..,n$ and $j=1,..,m$, then for each dose we can obtain the dose mean $y_i=\frac{1}{m}\sum_j y_{ij}$ or dose medians​​. The simple spline that connects each of this points with a linear function is given by
 $$
