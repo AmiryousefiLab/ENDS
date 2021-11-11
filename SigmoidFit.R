@@ -8,6 +8,46 @@ library(ggplot2)
 library(nplr)
 library(drc)
 
+sigmoid_fit = function(block2, dose_dependent_auc=TRUE){
+  
+  m = dim(block2)[2]-2
+  if(m==0) m <- m+1
+  
+  # Fit on means
+  y = unlist(block2['y_mean'])
+  x = unlist(block2['doses'])
+  
+  # 4 parameter logistic fit,
+  m0 <- drm(y ~ x,  fct = LL.4())
+  
+  
+  # Mean squared error for samples is
+  samples = block2[2:(m+1)]
+  mse = sample_meansquarederror(m0$curve[[1]](x), samples)
+  
+  # Equation of the fit
+  # f(x) = c + \frac{d-c}{(1+\exp(b(x - e)))^f}         
+  
+  x_ic = m0$coefficients[4]
+  y_ic = 0.5*(m0$coefficients['d:(Intercept)']+ m0$coefficients['c:(Intercept)'])
+  if(dose_dependent_auc==TRUE)
+    auc = integrate(m0$curve[[1]], lower = min(x), max(x))$value
+  if(dose_dependent_auc==FALSE){
+    x_ = 1:length(x)
+    m1 = drm(y ~ x_,  fct = LL.4())
+    auc = integrate(m1$curve[[1]], lower = min(x), max(x))$value
+  }
+  
+  list_stats = list( ic50 = x_ic[[1]], 
+                     mse = mse,
+                     auc = auc,
+                     coefficients = m0$coefficients
+  )
+  
+  return(list_stats)  
+}
+
+
 
 plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE){
   

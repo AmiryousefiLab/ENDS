@@ -228,19 +228,34 @@ ui <- fluidPage(
                                                                       label = "Dose dependent AUC",
                                                                       status = "danger",
                                                                       right=TRUE,
-                                                                      value = TRUE )
+                                                                      value = TRUE ),
+                                                       sliderInput(inputId = "p_auc",
+                                                                   label = "Select value for IC:",
+                                                                   min = 0,
+                                                                   max = 100,
+                                                                   value = 50)
                                        )
                                        )
                                        ),
                             
                               tabPanel(strong("Download"), br(),
+                                       h4('Download Plots Generated'),
+                                       p('Click button to download file of selected type with plots generated.'),
                                        textInput(inputId  = "file_name", label = "File name"),
                                        radioButtons(inputId  = "file_type", label = "Select format for plot downloaded.",
                                                     choices = c("pdf", "png", "jpeg")),
                                        em("NB! If 'pdf' format was selected, the resolution setting will not work."),
                                        numericInput(inputId = "resolution", label = "Resolution (DPI)", value = 300, min = 30, max = 1000, step = 10),
-                                       downloadButton(outputId = "download", label = "Download Plot")
-                                       
+                                       downloadButton(outputId = "download", label = "Download Plot"),
+                                       br(),
+                                       h4('Download Estimations Generated'),
+                                       p('Click button to download a .csv  file with the parameter estimations and the statistics computed such as IC50, AUC and MSE.'),
+                                       downloadButton(outputId = "downloadEstimations", label = "Download Estimations"),
+                                       br(),
+                                       h4('Download Postprocessed Data'),
+                                       p('Click button to download a .csv file with the postprocessed dataset including means/medians, 
+                                         outlier removal or viability over 100 correction, if selected options.'),
+                                       downloadButton(outputId = "downloadPostfile", label = "Download Processed Data"),
                               )
                               
                             ),
@@ -435,7 +450,12 @@ ui <- fluidPage(
                                                            label = "Dose dependent AUC",
                                                            status = "danger",
                                                            right=TRUE,
-                                                           value = TRUE )
+                                                           value = TRUE ),
+                                            sliderInput(inputId = "p_auc_",
+                                                        label = "Select value for IC:",
+                                                        min = 0,
+                                                        max = 100,
+                                                        value = 50)
                               ),
                               mainPanel(
                                 fluidRow(
@@ -1013,7 +1033,6 @@ server <- function(input, output) {
             p4 = plot_npbFit(block2, input$dosedep_auc)
           }
           
-          p1 = output$Plot1
           
           wid  = 6*4
           hei = 4*4
@@ -1107,6 +1126,7 @@ server <- function(input, output) {
         write.csv(df_example, con, row.names=FALSE)
       }
     )
+    
     output$downloadData2 <- downloadHandler(
       filename = function() {
         'ExampleData.csv'
@@ -1116,7 +1136,91 @@ server <- function(input, output) {
       }
     )
     
+    output$downloadPostfile <- downloadHandler(
+      filename = function() {
+        'DataPostProcessed.csv'
+      },
+      content = function(con) {
+        block = mydata()
+        block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
+        write.csv(block2, con, row.names=FALSE)
+      }
+    )
     
+    # Functions that return statistics from the models in list, save into csv and download
+    output$downloadEstimations <- downloadHandler(
+      filename = function() {
+        'ModelEstimations.csv'
+      },
+      content = function(con) {
+        block = mydata()
+        block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
+        l1=l2=l3=l4=NULL
+        if(input$SplinePlot){
+          list_nps = nonparaametric_fit(block2, input$dosedep_auc)
+          l1 = unlist(list_nps)
+        }
+        if(input$SigmoidPlot){
+          list_pl = sigmoid_fit(block2, input$dosedep_auc)
+          l2 = unlist(list_pl)
+        }
+        if(input$MonotonePlot){
+          list_npm = monotone_fit(block2, input$dosedep_auc)
+          l3 = unlist(list_npm)
+        }
+        if(input$NPBPlot){
+          block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch, drop_values=F)
+          list_npb = npb_fit(block2, input$dosedep_auc)
+          n = length(list_npb)
+          list_npb[[n]] = NULL
+          names(list_npb$param_est) = c('C_est', 'sigma2_est', 'a_est')
+          l4 = unlist(list_npb)
+        }
+        # DataFrame to save results
+        m = sum(!is.null(l1),!is.null(l2),!is.null(l3),!is.null(l4))
+        n = max(length(l1), length(l2), length(l3), length(l4))
+        if(n>0){
+
+          M = matrix(NA, nrow=n, ncol=2*4)
+          if(!is.null(l1)){
+            M[1:length(l1),1] = c("ic50", "mse", "auc", "drug_span_grad_angle", "spline_angles1",
+                                  "spline_angles2", "spline_angles3", "spline_angles4", "spline_angles5",
+                                  "spline_angles6", "spline_angles7", "spline_angles8", "spline_angles9",
+                                  "spline_angles10", "spline_angles11", "spline_angles12", "spline_angles13",
+                                  "spline_angles14", "spline_angles15", "spline_angles16", "spline_angles17",
+                                  "spline_angles18", "spline_angles19", "spline_angles20")
+            M[1:length(l1),2] = l1
+            }
+          if(!is.null(l2)){
+            M[1:length(l2),3] = c("ic50", "mse", "auc", "coefficients.b:(Intercept)", "coefficients.c:(Intercept)",
+                                  "coefficients.d:(Intercept)", "coefficients.e:(Intercept)")
+            M[1:length(l2),4] = l2
+          }
+          if(!is.null(l3)){
+            M[1:length(l3),5] = c("ic50", "mse", "auc", "y_fit1", "y_fit2", "y_fit3", "y_fit4",
+                                  "y_fit5", "y_fit6", "y_fit7", "y_fit8", "y_fit9", "y_fit10",
+                                  "y_fit11", "y_fit12", "y_fit13", "y_fit14", "y_fit15", "y_fit16",
+                                  "y_fit17", "y_fit18", "y_fit19", "y_fit20", "y_fit21")
+            M[1:length(l3),6] = l3
+          }
+          if(!is.null(l4)){
+            M[1:length(l4),7] = c("ic50", "mse", "auc", "lambda", "C_est", "sigma2_est",
+                                  "a_est1", "a_est2", "a_est3", "a_est4",
+                                  "a_est5", "a_est6", "a_est7", "a_est8",
+                                  "a_est9", "a_est10", "a_est11",
+                                  "a_est12", "a_est13", "a_est14",
+                                  "a_est15", "a_est16", "a_est17",
+                                  "a_est18", "a_est19", "a_est20",
+                                  "a_est21")
+            M[1:length(l4),8] = l4
+          }
+          df_stats = as.data.frame(M)
+          colnames(df_stats)=c('npS names','npS values','pL names','pL values','npM names','npM values','npB names','npB values')
+          write.csv(df_stats, con, row.names=FALSE)
+        }
+        
+      }
+    )
 }
 
 # Run the application 

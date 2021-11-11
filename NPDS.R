@@ -80,6 +80,90 @@ plot_initialize = function(block2){
 }
 
 
+nonparaametric_fit = function(block2, dose_dependent_auc=T){
+  
+  y_fit = block2$y_mean
+  x_fit = block2$doses
+  y_ic = 0.5*(max(y_fit)+min(y_fit))
+  
+  # now the value on the xaxis for which we get that value on the yaxis
+  N = length(x_fit)
+  x_ic_multiple = c()
+  for( i in 1:(N-1)){
+    if( (y_fit[i] <= y_ic & y_fit[i+1] >= y_ic ) |
+        (y_fit[i+1] <= y_ic & y_fit[i] >= y_ic ) )
+    {
+      idx1 = i
+      idx2 = i+1
+      if(idx1!=idx2){
+        y1 = y_fit[idx1]
+        y2 = y_fit[idx2]
+        x1 = x_fit[idx1]
+        x2 = x_fit[idx2]
+        x_ic_temp = (y_ic-y1)*((x2-x1)/(y2-y1)) + x1
+      } else{
+        print('IC_50 is not unique')
+        x_ic_temp = c(x_fit[idx1], x_fit[idx2])
+      }
+      x_ic_multiple = c(x_ic_multiple, x_ic_temp)
+    }
+  }
+  
+  # Now find the ic_50 closest to ic_50 by monotone regression
+  library(fdrtool)
+  mono1 = fdrtool::monoreg(x = log10(block2$doses), y = block2$y_mean, type = 'antitonic')
+  m = dim(block2)[2]-2
+  if(m==0) m <- m+1
+  y_fit = mono1$yf
+  x_fit = (block2$doses)
+  
+  xy_fit = ic_50_monotonefit(x_fit, y_fit)
+  x_ic_mono = xy_fit[[1]]
+  y_ic_mono = xy_fit[[2]]
+  
+  # ic50 is defined as the closest one to ic_50_mono
+  x_ic = x_ic_multiple[which.min(abs(x_ic_multiple-x_ic_mono))]
+  
+  if(dose_dependent_auc==TRUE) 
+    auc = line_integral(block2$doses,block2$y_mean)
+  
+  if(dose_dependent_auc==FALSE) 
+    auc = line_integral(1:length(block2$doses), block2$y_mean)
+  
+  
+  samples = block2[2:(m+1)]
+  y = block2$y_mean
+  mse = sample_meansquarederror(y, samples)
+  
+  # MinMax Bands
+  block2_y_max = apply( block2[, 2:(dim(block2)[2]) ],1, function(x) max(x, na.rm = T) )
+  block2_y_min = apply( block2[, 2:(dim(block2)[2]) ],1, function(x) min(x, na.rm = T) )
+  # Absolute Doses
+  
+  # Drug Span Gradient
+  x = log10(block2$doses)
+  # divid eover 100 to standarize
+  y = (block2$y_mean)/100
+  
+  model = lm(y~x)
+  angle = atan(model$coefficients[2])
+  angle_pi = round(angle/pi,2)
+  angle_degrees = angle*180/pi
+  
+  # Absolute Doses
+  angles = atan(diff(y)/diff((x)))
+  angles_degrees = angles*180/pi
+  
+  list_stats = list( ic50 = x_ic, 
+                     mse = mse,
+                     auc = auc,
+                     drug_span_grad_angle = angle_degrees,
+                     spline_angles = angles_degrees
+  )
+  
+  return(list_stats)  
+}
+
 
 plot_NPDS = function(p, block2, dose_dependent_auc=TRUE){
   
@@ -350,7 +434,6 @@ plot_relativedoses = function(p, block2, relative = TRUE){
   angle = atan(model$coefficients[2])
   angle_pi = round(angle/pi,2)
   angle_degrees = angle*180/pi
-  
   
   angles = atan(diff(y)/diff((x)))
   angles_degrees = angles*180/pi

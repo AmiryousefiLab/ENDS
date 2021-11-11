@@ -5,10 +5,10 @@ account: williwilliams3
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4365083
-bundleId: 5237045
+bundleId: 5239915
 url: https://williwilliams3.shinyapps.io/ENDS/
-when: 1636560681.68117
-lastSyncTime: 1636560681.68119
+when: 1636622573.89227
+lastSyncTime: 1636622573.89229
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .gitattributes|Connect_DrugComb.R|ENDS.png|extras
+ignoredFiles: .gitattributes|asdf.csv|Connect_DrugComb.R|extras

@@ -79,6 +79,44 @@ ic_50_monotonefit <- function(x_fit, y_fit){
   return(list(x_ic, y_ic))
 }
 
+monotone_fit = function(block2, dose_dependent_auc=TRUE){
+  mono1 = fdrtool::monoreg(x = log10(block2$doses), y = block2$y_mean, type = 'antitonic')
+  
+  m = dim(block2)[2]-2
+  if(m==0) m <- m+1
+  
+  y_fit = mono1$yf
+  x_fit = (block2$doses)
+  
+  
+  xy_fit = ic_50_monotonefit(x_fit, y_fit)
+  x_ic = xy_fit[[1]]
+  y_ic = xy_fit[[2]]
+  
+  block2_yf = mono1$yf
+  
+  # Mean squared error for samples is
+  samples = block2[2:(m+1)]
+  mse = sample_meansquarederror(mono1$yf, samples)
+  
+  
+  if(dose_dependent_auc==TRUE) 
+    auc = line_integral(x_fit,y_fit)
+  
+  if(dose_dependent_auc==FALSE) 
+    auc =  line_integral(1:length(x_fit), y_fit)
+  
+  
+  list_stats = list( ic50 = x_ic, 
+                     mse = mse,
+                     auc = auc,
+                     y_fit = y_fit
+  )
+  
+  
+  return(list_stats)  
+}
+
 plot_monotoneFit = function( block2, dose_dependent_auc=TRUE){
   
   mono1 = fdrtool::monoreg(x = log10(block2$doses), y = block2$y_mean, type = 'antitonic')

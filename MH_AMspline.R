@@ -495,19 +495,19 @@ make_plots = function(chain, K, lambda, logplotx=T, title='example'){
 
 # source('PreliminaryFunctions.R')
 # source('NPDS.R')
-input = list(mean_switch=T, outlier_switch=F, onehunda_switch=T, dosedep_auc=T,
-             checkgroup1 = c("Point samples" ,
-                             "Spline fit" ,
-                             "Min-max bands",
-                             "Empirical viability bands",
-                             "Drug span gradient",
-                             "Relative doses")
-)
-df = openxlsx::read.xlsx('data/Drug_response_S8.xlsx', sheet = 1)
-df_list  = read_excel_allsheets('data/Drug_response_S8.xlsx')
-df_example = read.csv('data/Example1.csv')
-block =extract_dose_block(df_list, '5FU', 'P1', 'T1', 1)
-block = df_example
-block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
+# input = list(mean_switch=T, outlier_switch=F, onehunda_switch=T, dosedep_auc=T,
+#              checkgroup1 = c("Point samples" ,
+#                              "Spline fit" ,
+#                              "Min-max bands",
+#                              "Empirical viability bands",
+#                              "Drug span gradient",
+#                              "Relative doses")
+# )
+# df = openxlsx::read.xlsx('data/Drug_response_S8.xlsx', sheet = 1)
+# df_list  = read_excel_allsheets('data/Drug_response_S8.xlsx')
+# df_example = read.csv('data/Example1.csv')
+# block =extract_dose_block(df_list, '5FU', 'P1', 'T1', 1)
+# block = df_example
+# block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
 # 
 # p = plot_npbFit(block2)
