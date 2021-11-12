@@ -60,26 +60,8 @@ library(fdrtool)
 # }
 # 
 
-ic_50_monotonefit <- function(x_fit, y_fit){
-  y_ic = 0.5*(max(y_fit)+min(y_fit))
-  # now the value on the xaxis for which we get that value on the yaxis
-  idx1 = max(which(y_fit>=y_ic))
-  idx2 = min(which(y_fit<=y_ic))
-  
-  if(idx1!=idx2){
-    y1 = y_fit[idx1]
-    y2 = y_fit[idx2]
-    x1 = x_fit[idx1]
-    x2 = x_fit[idx2]
-    x_ic = (y_ic-y1)*((x2-x1)/(y2-y1)) + x1
-  } else{
-    print('IC_50 is not unique')
-    x_ic = x_fit
-  }
-  return(list(x_ic, y_ic))
-}
 
-monotone_fit = function(block2, dose_dependent_auc=TRUE){
+monotone_fit = function(block2, dose_dependent_auc=TRUE, p_ic = 50){
   mono1 = fdrtool::monoreg(x = log10(block2$doses), y = block2$y_mean, type = 'antitonic')
   
   m = dim(block2)[2]-2
@@ -89,7 +71,7 @@ monotone_fit = function(block2, dose_dependent_auc=TRUE){
   x_fit = (block2$doses)
   
   
-  xy_fit = ic_50_monotonefit(x_fit, y_fit)
+  xy_fit = ic_50_monotonefit(x_fit, y_fit, p_ic)
   x_ic = xy_fit[[1]]
   y_ic = xy_fit[[2]]
   
@@ -117,7 +99,7 @@ monotone_fit = function(block2, dose_dependent_auc=TRUE){
   return(list_stats)  
 }
 
-plot_monotoneFit = function( block2, dose_dependent_auc=TRUE){
+plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50){
   
   mono1 = fdrtool::monoreg(x = log10(block2$doses), y = block2$y_mean, type = 'antitonic')
   
@@ -137,7 +119,7 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE){
   x_fit = (block2$doses)
   
   
-  xy_fit = ic_50_monotonefit(x_fit, y_fit)
+  xy_fit = ic_50_monotonefit(x_fit, y_fit, p_ic)
   x_ic = xy_fit[[1]]
   y_ic = xy_fit[[2]]
   
@@ -154,10 +136,11 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE){
   if(dose_dependent_auc==FALSE) 
     auc =  line_integral(1:length(x_fit), y_fit)
   
+  text0 = p_ic
   text1 = max(round(x_ic,2), signif(x_ic,3) )
   text2 = round(mse,2)
   text3 = round(auc)
-  text = sprintf("atop(atop(IC[50] == %s, AUC == %s),atop( MSE == %s, \t) )",text1, text3, text2)
+  text = sprintf("atop(atop(IC[%s] == %s, AUC == %s),atop( MSE == %s, \t) )",text0,text1, text3, text2)
   
   if(max(block2[,2:(m+1)], na.rm=T)==100){
     y_lim_right = 110
@@ -168,7 +151,7 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE){
   p = plot_initialize(block2)
   p = plot_point_samples(p, block2)
   
-  colls <<- c(colls, "NPM"="darkgreen","IC50"="red")
+  colls <<- c(colls, "NPM"="darkgreen","IC"="red")
   linetypes <<- c(linetypes, "solid","dotted")
   shapes <<- c(shapes, NA, NA)
   
@@ -177,7 +160,7 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE){
     ggtitle('Nonparametric Monotonic') +
     geom_line(aes(block2$doses, block2_yf, colour ='NPM')) + 
     geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
-    geom_vline(  aes(xintercept =  x_ic, colour="IC50" ),  linetype="dotted", show.legend = F) + 
+    geom_vline(  aes(xintercept =  x_ic, colour="IC" ),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
              hjust=1,
              vjust=1,
@@ -192,8 +175,8 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE){
                             )
                         )
     )
- 
+  
   return(p)
 }
 
-# p = plot_monotoneFit(block2)
+# p = plot_monotoneFit(block2, T, 100)

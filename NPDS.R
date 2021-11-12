@@ -14,7 +14,7 @@ library(ggrepel)
 # There's room for development if you want to change or propose some new ones
 
 # Bulat's ideas:
-  # - Try the other dataset, be able to change between means and medians
+# - Try the other dataset, be able to change between means and medians
 
 
 # Connects max and min of each group
@@ -22,9 +22,9 @@ library(ggrepel)
 
 
 # We can add each of parts of the functions to the plots, so we have the implementation of building on top of each graph
-  # Change ylim from min to max of the samples
-  # Modify each of the functions below to follow this idea, and so that everything fits on one single graph
-  # p = p + new_function(p)
+# Change ylim from min to max of the samples
+# Modify each of the functions below to follow this idea, and so that everything fits on one single graph
+# p = p + new_function(p)
 
 
 
@@ -38,7 +38,7 @@ plot_initialize = function(block2){
   }else{
     y_lim_right = max(block2[,2:(m+1)], na.rm=T)
   }
-    
+  
   # Initialize global variables that will be filled in in legend
   colls <<- c()
   linetypes <<- c()
@@ -74,55 +74,63 @@ plot_initialize = function(block2){
                                           size = 0.5, linetype = "solid"),
           legend.position = 'right',
           legend.text = element_text(size=15)
-          ) 
-    
+    ) 
+  
   return(p)
 }
 
 
-nonparaametric_fit = function(block2, dose_dependent_auc=T){
+nonparaametric_fit = function(block2, dose_dependent_auc=T, p_ic = 50){
   
   y_fit = block2$y_mean
   x_fit = block2$doses
-  y_ic = 0.5*(max(y_fit)+min(y_fit))
+  q_ic = 100-p_ic
   
-  # now the value on the xaxis for which we get that value on the yaxis
-  N = length(x_fit)
-  x_ic_multiple = c()
-  for( i in 1:(N-1)){
-    if( (y_fit[i] <= y_ic & y_fit[i+1] >= y_ic ) |
-        (y_fit[i+1] <= y_ic & y_fit[i] >= y_ic ) )
-    {
-      idx1 = i
-      idx2 = i+1
-      if(idx1!=idx2){
-        y1 = y_fit[idx1]
-        y2 = y_fit[idx2]
-        x1 = x_fit[idx1]
-        x2 = x_fit[idx2]
-        x_ic_temp = (y_ic-y1)*((x2-x1)/(y2-y1)) + x1
-      } else{
-        print('IC_50 is not unique')
-        x_ic_temp = c(x_fit[idx1], x_fit[idx2])
+  y_ic = min(y_fit)+ (q_ic/100)*(max(y_fit)-min(y_fit))
+  if(q_ic==0){
+    x_ic = min(x_fit[y_fit==min(y_fit)])
+  }
+  if(q_ic==100){
+    x_ic = min(x_fit[y_fit==max(y_fit)])
+  }
+  if(0<q_ic &  q_ic<100){
+    N = length(x_fit)
+    x_ic_multiple = c()
+    for( i in 1:(N-1)){
+      if( (y_fit[i] <= y_ic & y_fit[i+1] >= y_ic ) |
+          (y_fit[i+1] <= y_ic & y_fit[i] >= y_ic ) )
+      {
+        idx1 = i
+        idx2 = i+1
+        if(idx1!=idx2){
+          y1 = y_fit[idx1]
+          y2 = y_fit[idx2]
+          x1 = x_fit[idx1]
+          x2 = x_fit[idx2]
+          x_ic_temp = (y_ic-y1)*((x2-x1)/(y2-y1)) + x1
+        } else{
+          print('IC_50 is not unique')
+          x_ic_temp = c(x_fit[idx1], x_fit[idx2])
+        }
+        x_ic_multiple = c(x_ic_multiple, x_ic_temp)
       }
-      x_ic_multiple = c(x_ic_multiple, x_ic_temp)
     }
+    # Now find the ic_50 closest to ic_50 by monotone regression
+    library(fdrtool)
+    mono1 = fdrtool::monoreg(x = log10(block2$doses), y = block2$y_mean, type = 'antitonic')
+    m = dim(block2)[2]-2
+    if(m==0) m <- m+1
+    y_fit = mono1$yf
+    x_fit = (block2$doses)
+    xy_fit = ic_50_monotonefit(x_fit, y_fit, p_ic)
+    x_ic_mono = xy_fit[[1]]
+    y_ic_mono = xy_fit[[2]]
+    
+    # ic50 is defined as the closest one to ic_50_mono
+    x_ic = x_ic_multiple[which.min(abs(x_ic_multiple-x_ic_mono))]
+    
   }
   
-  # Now find the ic_50 closest to ic_50 by monotone regression
-  library(fdrtool)
-  mono1 = fdrtool::monoreg(x = log10(block2$doses), y = block2$y_mean, type = 'antitonic')
-  m = dim(block2)[2]-2
-  if(m==0) m <- m+1
-  y_fit = mono1$yf
-  x_fit = (block2$doses)
-  
-  xy_fit = ic_50_monotonefit(x_fit, y_fit)
-  x_ic_mono = xy_fit[[1]]
-  y_ic_mono = xy_fit[[2]]
-  
-  # ic50 is defined as the closest one to ic_50_mono
-  x_ic = x_ic_multiple[which.min(abs(x_ic_multiple-x_ic_mono))]
   
   if(dose_dependent_auc==TRUE) 
     auc = line_integral(block2$doses,block2$y_mean)
@@ -155,6 +163,7 @@ nonparaametric_fit = function(block2, dose_dependent_auc=T){
   angles_degrees = angles*180/pi
   
   list_stats = list( ic50 = x_ic, 
+                     y_ic = y_ic,
                      mse = mse,
                      auc = auc,
                      drug_span_grad_angle = angle_degrees,
@@ -165,75 +174,19 @@ nonparaametric_fit = function(block2, dose_dependent_auc=T){
 }
 
 
-plot_NPDS = function(p, block2, dose_dependent_auc=TRUE){
+plot_NPDS = function(p, block2, dose_dependent_auc=TRUE, p_ic=50){
   
-  # Now define formula for splines 
-  # Vectorize function
-  # piecewise_lin = Vectorize(function(x) piecewise_linear(x, block2))
-  # log x plot
-  # plot(block2$doses, block2$y_mean, log='x', ylim = c(min(block2[2:5]) , max(block2[2:5]) )  )
-  # lines(block2$doses, block2$y_mean)
-  # for (i in 2:5){
-  #   points( block2$doses, block2[,i], col='blue', pch = '-')
-  # }
-  # # Matches perfectly
-  # curve(piecewise_lin(x), col='darkred',add=T)
   
-  # IC_50 is the closest of the points to the Monotone-nonparametric IC50 such that the response 
-  # is half of the max and min values
+  list_nps = nonparaametric_fit(block2, dose_dependent_auc=T, p_ic )
+  x_ic = list_nps$ic50
+  y_ic = list_nps$y_ic
+  mse = list_nps$mse
+  auc = list_nps$auc
+  angle_degrees = list_nps$drug_span_grad_angle
+  angles_degrees = list_nps$spline_angles
   
-  # colors <- c( "NonParm"="darkblue","Samples"="blue", "Sigmoid"="red", "Means"="darkblue")
   
-  # Pretty ggplot visualization
-  y_fit = block2$y_mean
-  x_fit = block2$doses
-  y_ic = 0.5*(max(y_fit)+min(y_fit))
-
-  # now the value on the xaxis for which we get that value on the yaxis
-  N = length(x_fit)
-  x_ic_multiple = c()
-  for( i in 1:(N-1)){
-    if( (y_fit[i] <= y_ic & y_fit[i+1] >= y_ic ) |
-        (y_fit[i+1] <= y_ic & y_fit[i] >= y_ic ) )
-        {
-      idx1 = i
-      idx2 = i+1
-      if(idx1!=idx2){
-        y1 = y_fit[idx1]
-        y2 = y_fit[idx2]
-        x1 = x_fit[idx1]
-        x2 = x_fit[idx2]
-        x_ic_temp = (y_ic-y1)*((x2-x1)/(y2-y1)) + x1
-      } else{
-        print('IC_50 is not unique')
-        x_ic_temp = c(x_fit[idx1], x_fit[idx2])
-      }
-      x_ic_multiple = c(x_ic_multiple, x_ic_temp)
-    }
-  }
-  
-  # Now find the ic_50 closest to ic_50 by monotone regression
-  library(fdrtool)
-  mono1 = fdrtool::monoreg(x = log10(block2$doses), y = block2$y_mean, type = 'antitonic')
   m = dim(block2)[2]-2
-  if(m==0) m <- m+1
-  y_fit = mono1$yf
-  x_fit = (block2$doses)
-  
-  xy_fit = ic_50_monotonefit(x_fit, y_fit)
-  x_ic_mono = xy_fit[[1]]
-  y_ic_mono = xy_fit[[2]]
-  
-  # ic50 is defined as the closest one to ic_50_mono
-  x_ic = x_ic_multiple[which.min(abs(x_ic_multiple-x_ic_mono))]
-  
-  if(dose_dependent_auc==TRUE) 
-    auc = line_integral(block2$doses,block2$y_mean)
-  
-  if(dose_dependent_auc==FALSE) 
-    auc = line_integral(1:length(block2$doses), block2$y_mean)
-  
-  
   if(max(block2[,2:(m+1)], na.rm=T)==100){
     y_lim_right = 110
   }else{
@@ -254,23 +207,20 @@ plot_NPDS = function(p, block2, dose_dependent_auc=TRUE){
     }
   }
   
-  samples = block2[2:(m+1)]
-  y = block2$y_mean
-  mse = sample_meansquarederror(y, samples)
-  
+  text0 = p_ic
   text1 = max(round(x_ic,2), signif(x_ic,3) )
   text2 = round(mse,2)
   text3 = round(auc)
-  text = sprintf("atop(atop(IC[50] == %s, AUC == %s),atop( MSE == %s, \t) )",text1, text3, text2)
+  text = sprintf("atop(atop(IC[%s] == %s, AUC == %s),atop( MSE == %s, \t) )",text0,text1, text3, text2)
   
-  colls <<- c(colls, "NPS"="darkblue", "IC50"="red")
+  colls <<- c(colls, "NPS"="darkblue", "IC"="red")
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   alphas <<- c(alphas, 1, 1)
   p <-  p + 
     geom_line(aes(colour='NPS') , size = 0.8) +
     geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
-    geom_vline(  aes(xintercept =  x_ic, colour="IC50"),  linetype="dotted", show.legend = F) +
+    geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) +
     ggrepel::geom_text_repel(aes(label=round(y_mean) ), size=3.0, force_pull = 2, seed=42) +
     annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
              hjust=1,
@@ -324,8 +274,8 @@ plot_point_samples =  function(p, block2){
 #                                   )
 #                               )
 #                             )
-                             
-                            
+
+
 # Empirical variability band
 plot_minmaxBands = function(p, block2){
   
@@ -345,13 +295,13 @@ plot_minmaxBands = function(p, block2){
   p = p + 
     geom_line(aes(doses, block2_y_min), color='dimgrey', linetype = 'dashed') +
     geom_line(aes(doses, block2_y_max, colour='Min-max bands'), linetype = 'dashed')  
-    
+  
   return(p)
 }
 
 # Adjacent Mean Variability Band I dont understand the idea behind the variability bands for the adjacent mean lines
 # I understand adjacent mean lines are the step function generated by the means of the drug response data
-    
+
 
 plot_empiricalVariabilityBand = function(p, block2){
   
@@ -400,7 +350,7 @@ plot_drugSpanGradient = function(p, block2){
              size = 5, 
              label =  bquote( theta~'='~ .(angle_degrees_plot)^o ),
              hjust=0) 
-      return(p)  
+  return(p)  
 }
 
 
@@ -424,7 +374,7 @@ plot_relativedoses = function(p, block2, relative = TRUE){
   
   
   # For this funciton preferably call drug span gradient before
-   # and NPDS as well
+  # and NPDS as well
   
   x = log10(block2$doses)
   # divid eover 100 to standarize
@@ -486,7 +436,7 @@ plot_relativedoses = function(p, block2, relative = TRUE){
   
   
   
-    return(p)  
+  return(p)  
 }
 
 
@@ -544,7 +494,7 @@ plot_relativedoses = function(p, block2, relative = TRUE){
 # block2 = preprocess_data(block, keep_outliers = F)
 # p = plot_initialize(block2 )
 # p = plot_point_samples(p, block2)
-# p = plot_NPDS(p, block2)
+# p = plot_NPDS(p, block2, dose_dependent_auc = T, p_ic = 100)
 # p = plot_minmaxBands(p, block2)
 # p = plot_empiricalVariabilityBand(p, block2)
 # p = plot_drugSpanGradient(p, block2)
@@ -558,7 +508,7 @@ plot_relativedoses = function(p, block2, relative = TRUE){
 #                             shape = shapes,
 #                             alpha = alphas
 #                             )))
-
+# p
 # p = plot_monotoneFit( block2)
 #
 # p = plot_sigmodiFit(block2)

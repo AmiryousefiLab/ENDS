@@ -19,7 +19,7 @@ dlogistic  = function(x){
 }
 invlogistic  = function(y){
   return( log(y / (1-y)) )
-  }
+}
 
 library(knitr)
 softmax <- function(par){
@@ -45,7 +45,7 @@ likelihood = function(param, x,y,K,lambda){
   C_phi = param[1]
   sigma_phi = param[2]
   a_phi = param[3:(3+n_knots-1)]
-    
+  
   C = logistic(C_phi)
   sigma2 = exp(sigma_phi)
   a = softmax(a_phi)
@@ -121,7 +121,7 @@ run_metropolis_MCMC = function(startvalue, iter, x,y,K,lambda){
 chain_NPB = function(x,y,K,lambda, iter = 10000){
   n_samples <<- length(y)
   n_knots <<- length(K)
-
+  
   startvalue = c(0.5,1, rep(1, n_knots)/n_knots)
   
   chain = run_metropolis_MCMC(startvalue, iter, x,y,K,lambda)
@@ -227,7 +227,9 @@ find_optimal_lambda = function(x,y,K,y_max, iter = 100, lambdas = c(0.01, 0.1, 2
   return(lambda_selected)
 }
 
-npb_fit = function(block2, dose_dependent_auc=TRUE){
+npb_fit = function(block2, dose_dependent_auc=TRUE, p_ic=50){
+  
+  q_ic = 100-p_ic
   set.seed(42)
   y_max <-  max(as.matrix(block2[,2:5]))
   x <- block2$doses
@@ -248,11 +250,23 @@ npb_fit = function(block2, dose_dependent_auc=TRUE){
   posterior_predictive_integrate = function(x) am_spline(x, C_est, a_est, lambda, K, y_max)
   am_min = am_spline(max(x), C_est, a_est,lambda, K )
   am_max =  am_spline(min(x), C_est, a_est,lambda, K )
-  posterior_predictive_inverse = function(x){ am_spline(x, C_est, a_est,lambda, K )-  (am_min+am_max)*0.5 }
-  uniroot = uniroot(posterior_predictive_inverse, interval = c(min(x), max(x)), tol=1e-9)
-  x_ic50 = uniroot$root
-  # x_ic50 is invariant to scale, for auc and mse bring back to original scale
-  # x_ic50 is less than other models because first knot is in min(dose), so the function still goes up
+  y_ic_unomr = (am_min+(am_max-am_min)*(q_ic/100))
+  posterior_predictive_inverse = function(x){ am_spline(x, C_est, a_est,lambda, K )- y_ic_unomr }
+  
+  
+  if(q_ic<1){
+    x_ic = max(x)
+    y_ic = posterior_predictive_integrate(x_ic)
+  }
+  if(q_ic>99){
+    x_ic = min(x)
+    y_ic = posterior_predictive_integrate(x_ic)
+  }
+  if(1<=q_ic & q_ic<=99){
+    uniroot = uniroot(posterior_predictive_inverse, interval = c(min(x), max(x)), tol=1e-9)
+    x_ic = uniroot$root
+    y_ic = posterior_predictive_integrate(x_ic)
+  }
   
   mse = sample_meansquarederror(posterior_predictive_integrate(x), y_og)
   
@@ -269,7 +283,8 @@ npb_fit = function(block2, dose_dependent_auc=TRUE){
     auc = integrate(posterior_predictive_integrate, lower = min(x), max(x))$value
   }
   
-  list_stats = list( ic50 = x_ic50, 
+  list_stats = list( ic50 = x_ic, 
+                     y_ic = y_ic,
                      mse = mse,
                      auc = auc,
                      lambda=lambda,
@@ -280,7 +295,7 @@ npb_fit = function(block2, dose_dependent_auc=TRUE){
   return(list_stats)  
 }
 
-plot_npbFit = function(block2, dose_dependent_auc=TRUE){
+plot_npbFit = function(block2, dose_dependent_auc=TRUE, p_ic=50){
   
   m = dim(block2)[2]-2 
   if(m==0) m <- m+1
@@ -290,7 +305,7 @@ plot_npbFit = function(block2, dose_dependent_auc=TRUE){
   # x = unlist(block2['doses'])
   
   # NPB fit over whole data
-  list_npb = npb_fit(block2, dose_dependent_auc)
+  list_npb = npb_fit(block2, dose_dependent_auc, p_ic)
   
   x_ic = list_npb[['ic50']] 
   posterior_predictive_integrate = list_npb[['posterior_predictive_integrate']] 
@@ -300,12 +315,12 @@ plot_npbFit = function(block2, dose_dependent_auc=TRUE){
   lambda=list_npb[['lambda']] 
   param_est = list_npb[['param_est']]
   
-  
+  text0 = round(p_ic)
   text1 = max(round(x_ic,2), signif(x_ic,3) )
   text2 = round(mse,2)
   text3 = round(auc)
   
-  text = sprintf("atop(atop(IC[50] == %s, AUC == %s),atop( MSE == %s, \t) )",text1, text3, text2)
+  text = sprintf("atop(atop(IC[%s] == %s, AUC == %s),atop( MSE == %s, \t) )",text0,text1, text3, text2)
   
   if(max(block2[,2:(m+1)], na.rm=T)==100){
     y_lim_right = 110
@@ -316,7 +331,7 @@ plot_npbFit = function(block2, dose_dependent_auc=TRUE){
   p = plot_initialize(block2)
   p = plot_point_samples(p, block2)
   
-  colls <<- c(colls, "NPB"="purple", "IC50"="red")
+  colls <<- c(colls, "NPB"="purple", "IC"="red")
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   
@@ -326,7 +341,7 @@ plot_npbFit = function(block2, dose_dependent_auc=TRUE){
     ggtitle('Nonparemetric Bayesian') +
     geom_function(fun = posterior_predictive_integrate, aes(colour='NPB')) + 
     geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
-    geom_vline(  aes(xintercept =  x_ic, colour="IC50"),  linetype="dotted", show.legend = F) + 
+    geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
              hjust=1,
              vjust=1,
@@ -365,12 +380,12 @@ make_plots = function(chain, K, lambda, logplotx=T, title='example'){
   library(randomcoloR)
   file_plot = paste('images/npb_chains',title,length(K), lambda, '.png', sep = '_')
   png(file=file_plot, res=200, width=10, height=15,units = "cm" )
-    par(mfrow = c(3,1))
-    plot(C_post[obs], type='l',col='red',main = 'C (right limit)') 
-    plot(sigma2_post[obs], type='l',col='blue',main='Sigma (std)')
-    plot( a_post[obs,1], type='l',col='blue',main='a (weights)', ylim=c(0,0.5) )
-    for( i in 2:(n_knots-1))
-      lines(a_post[obs,i], type='l',col=randomColor(count=1))
+  par(mfrow = c(3,1))
+  plot(C_post[obs], type='l',col='red',main = 'C (right limit)') 
+  plot(sigma2_post[obs], type='l',col='blue',main='Sigma (std)')
+  plot( a_post[obs,1], type='l',col='blue',main='a (weights)', ylim=c(0,0.5) )
+  for( i in 2:(n_knots-1))
+    lines(a_post[obs,i], type='l',col=randomColor(count=1))
   dev.off()
   
   
@@ -384,20 +399,20 @@ make_plots = function(chain, K, lambda, logplotx=T, title='example'){
   
   file_plot = paste('images/npb',title,length(K),lambda, '.png', sep = '_')
   png(file=file_plot,res=400, width=20, height=16, units='cm')
-    par(mfrow=c(1,1))
-    main_plot = paste('NPB fit K=',length(K),' Lambda=',lambda, sep='')
-    if(logplotx==T){
-        plot(x,y[,1], ylim = c(C_est-0.1,1.1), main=main_plot, log='x')
-    }else{
-      plot(x,y[,1], ylim = c(C_est-0.1,1.1), main=main_plot)
-    }
-    points(x,y[,2])
-    points(x,y[,3])
-    points(x,y[,4])
-    lines(x, rowMeans(y), col='blue')
-    lines(x_est,y_est, type='l', col='red')
+  par(mfrow=c(1,1))
+  main_plot = paste('NPB fit K=',length(K),' Lambda=',lambda, sep='')
+  if(logplotx==T){
+    plot(x,y[,1], ylim = c(C_est-0.1,1.1), main=main_plot, log='x')
+  }else{
+    plot(x,y[,1], ylim = c(C_est-0.1,1.1), main=main_plot)
+  }
+  points(x,y[,2])
+  points(x,y[,3])
+  points(x,y[,4])
+  lines(x, rowMeans(y), col='blue')
+  lines(x_est,y_est, type='l', col='red')
   dev.off()
-
+  
 }
 
 
@@ -473,7 +488,7 @@ make_plots = function(chain, K, lambda, logplotx=T, title='example'){
 
 
 # 9 Plots
-  # fit is not good when knots are not on doses
+# fit is not good when knots are not on doses
 # K1 =  lseq(from=min(x), to=max(x), length.out = 3)
 # K2 = lseq(from=min(x), to=max(x), length.out = 10)
 # K3= lseq(from=min(x), to=max(x), length.out = 30)
@@ -510,4 +525,5 @@ make_plots = function(chain, K, lambda, logplotx=T, title='example'){
 # block = df_example
 # block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
 # 
-# p = plot_npbFit(block2)
+p = plot_npbFit(block2, T, 0)
+p

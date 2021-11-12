@@ -118,7 +118,7 @@ preprocess_data = function(block, mean_samples = TRUE, keep_outliers = TRUE, ove
   }
   
   # For clipping viability
-    # should we clip each of the samples or only average?
+  # should we clip each of the samples or only average?
   if(over_viability == FALSE){
     block2[2:m][block2[2:m]>100] = 100
   }
@@ -136,22 +136,35 @@ preprocess_data = function(block, mean_samples = TRUE, keep_outliers = TRUE, ove
 }
 
 
-ic_50_monotonefit <- function(x_fit, y_fit){
-  y_ic = 0.5*(max(y_fit)+min(y_fit))
-  # now the value on the xaxis for which we get that value on the yaxis
-  idx1 = max(which(y_fit>=y_ic))
-  idx2 = min(which(y_fit<=y_ic))
+ic_50_monotonefit <- function(x_fit, y_fit, p_ic=50){
   
-  if(idx1!=idx2){
-    y1 = y_fit[idx1]
-    y2 = y_fit[idx2]
-    x1 = x_fit[idx1]
-    x2 = x_fit[idx2]
-    x_ic = (y_ic-y1)*((x2-x1)/(y2-y1)) + x1
-  } else{
-    print('IC_50 is not unique')
-    x_ic = x_fit
+  # Correct from top to bottom
+  q_ic = 100-p_ic
+  y_ic = min(y_fit)+ (q_ic/100)*(max(y_fit)-min(y_fit))
+  
+  if(q_ic==0){
+    x_ic = min(x_fit[y_fit==min(y_fit)])
   }
+  if(q_ic==100){
+    x_ic = min(x_fit[y_fit==max(y_fit)])
+  }
+  if(0<p_ic &  p_ic<100){
+    # now the value on the xaxis for which we get that value on the yaxis
+    idx1 = max(which(y_fit>=y_ic))
+    idx2 = min(which(y_fit<=y_ic))
+    
+    if(idx1!=idx2){
+      y1 = y_fit[idx1]
+      y2 = y_fit[idx2]
+      x1 = x_fit[idx1]
+      x2 = x_fit[idx2]
+      x_ic = (y_ic-y1)*((x2-x1)/(y2-y1)) + x1
+    }else{
+      print('IC_50 is not unique')
+      x_ic = x_fit
+    }
+  }
+  
   return(list(x_ic, y_ic))
 }
 
@@ -176,7 +189,7 @@ sample_meansquarederror = function(y, samples){
   mean(as.matrix((samples-y)^2) , na.rm=T)
 }
 
-PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE){
+PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50){
   # controler for generated plot depending on checkboxes
   p = plot_initialize(block2 )
   if(is.null(check_boxes) ) return(p)
@@ -184,7 +197,7 @@ PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE){
   if("Point Samples" %in% check_boxes)
     p <- plot_point_samples(p, block2)
   if("Spline" %in% check_boxes)
-    p <- plot_NPDS(p, block2, dose_dependent_auc)
+    p <- plot_NPDS(p, block2, dose_dependent_auc, p_ic)
   if("Min-Max Bands" %in% check_boxes)
     p <- plot_minmaxBands(p, block2)
   if("Empirical Viability bands" %in% check_boxes)
