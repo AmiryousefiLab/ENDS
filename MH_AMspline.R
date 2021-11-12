@@ -525,5 +525,5 @@ make_plots = function(chain, K, lambda, logplotx=T, title='example'){
 # block = df_example
 # block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
 # 
-p = plot_npbFit(block2, T, 0)
-p
+# p = plot_npbFit(block2, T, 0)
+# p
