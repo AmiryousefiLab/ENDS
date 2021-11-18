@@ -1,4 +1,4 @@
-#
+
 # This is a Shiny web application. You can run the application by clicking
 # the 'Run App' button above.
 #
@@ -159,6 +159,10 @@ ui <- fluidPage(
                                                                                 animation = 'tada',
                                                                                 icon = icon('check')
                                                                  ),
+                                                                 textInput(inputId  = "NPS_title", 
+                                                                           label = NULL,
+                                                                           placeholder = 'Type title here...'
+                                                                 ),
                                                                  prettyCheckboxGroup(
                                                                    inputId = "checkgroup1",
                                                                    label = "Plot Layers",
@@ -186,6 +190,10 @@ ui <- fluidPage(
                                                                                 animation = 'tada',
                                                                                 icon = icon('check')
                                                                  ),
+                                                                 textInput(inputId  = "NPM_title", 
+                                                                           label = NULL,
+                                                                           placeholder = 'Type title here...'
+                                                                           ),
                                                                  # Check box for Sigmoid Fitting
                                                                  prettyCheckbox(inputId = "SigmoidPlot",
                                                                                 label = "Parametric Logistic",
@@ -197,6 +205,10 @@ ui <- fluidPage(
                                                                                 animation = 'tada',
                                                                                 icon = icon('check')
                                                                  ),
+                                                                 textInput(inputId  = "PL_title", 
+                                                                           label = NULL,
+                                                                           placeholder = 'Type title here...'
+                                                                 ),
                                                                  # Check box for NPB Fitting
                                                                  prettyCheckbox(inputId = "NPBPlot",
                                                                                 label = "Nonparametric Bayesian",
@@ -207,6 +219,10 @@ ui <- fluidPage(
                                                                                 status = 'warning',
                                                                                 animation = 'tada',
                                                                                 icon = icon('check')
+                                                                 ),
+                                                                 textInput(inputId  = "NPB_title", 
+                                                                           label = NULL,
+                                                                           placeholder = 'Type title here...'
                                                                  ),
                                                                  strong('Data Processing'),
                                                                  materialSwitch(inputId = "mean_switch", 
@@ -329,8 +345,10 @@ ui <- fluidPage(
                           sidebarLayout(
                             sidebarPanel( width = 4, br(),
                                           titlePanel("Desired Drug-Patient Characteristics"),
-                                          p('Drugs, patients, treatments and samples are options from the data found in the paper 
-                                              "Intra-tumour diversification in colorectal cancer at the single-cell level" (2018), selecting different options will 
+                                          p('Drugs, patients, treatments and samples are options from the data found in the paper',
+                                            tags$a(href="https://www.nature.com/articles/s41586-018-0024-3", 
+                                                   strong('"Intra-tumour diversification in colorectal cancer at the single-cell level" (2018)')),
+                                              ', selecting different options will 
                                               result in a different model fit, note that not all combinations exist in the data.' ),
                                           prettyRadioButtons(
                                             inputId = "Drug",
@@ -381,6 +399,10 @@ ui <- fluidPage(
                                                          animation = 'tada',
                                                          icon = icon('check')
                                           ),
+                                          textInput(inputId  = "NPS_title_",
+                                                    label = NULL,
+                                                    placeholder = 'Type title here...'
+                                          ),
                                           prettyCheckboxGroup(
                                             inputId = "checkgroup1_",
                                             label = "Plot Layers",
@@ -408,6 +430,10 @@ ui <- fluidPage(
                                                          animation = 'tada',
                                                          icon = icon('check')
                                           ),
+                                          textInput(inputId  = "NPM_title_",
+                                                    label = NULL,
+                                                    placeholder = 'Type title here...'
+                                          ),
                                           # Check box for Sigmoid Fitting
                                           prettyCheckbox(inputId = "SigmoidPlot_",
                                                          label = "Parametric Logistic",
@@ -419,6 +445,10 @@ ui <- fluidPage(
                                                          animation = 'tada',
                                                          icon = icon('check')
                                           ),
+                                          textInput(inputId  = "PL_title_",
+                                                    label = NULL,
+                                                    placeholder = 'Type title here...'
+                                          ),
                                           # Check box for Nonparametric Bayesian Fitting
                                           prettyCheckbox(inputId = "NPBPlot_",
                                                          label = "Nonparametric Bayesian",
@@ -429,6 +459,10 @@ ui <- fluidPage(
                                                          status = 'warning',
                                                          animation = 'tada',
                                                          icon = icon('check')
+                                          ),
+                                          textInput(inputId  = "NPB_title_",
+                                                    label = NULL,
+                                                    placeholder = 'Type title here...'
                                           ),
                                           strong('Data Processing'),
                                           materialSwitch(inputId = "mean_switch_", 
@@ -501,6 +535,10 @@ server <- function(input, output) {
   hs = reactive(input$onehunda_switch)
   dd = reactive(input$dosedep_auc)
   ic = reactive(input$p_ic)
+  tt1 = reactive(input$NPS_title)
+  t2 = reactive(input$NPM_title)
+  t3 = reactive(input$PL_title)
+  t4 = reactive(input$NPB_title)
   
   
   cb0_ = reactive(input$MonotonePlot_)
@@ -513,6 +551,10 @@ server <- function(input, output) {
   hs_ = reactive(input$onehunda_switch_)
   dd_ = reactive(input$dosedep_auc_)
   ic_ = reactive(input$p_ic_)
+  t1_ = reactive(input$NPS_title_)
+  t2_ = reactive(input$NPM_title_)
+  t3_ = reactive(input$PL_title_)
+  t4_ = reactive(input$NPB_title_)
   
   d1 = reactive(input$Drug)
   p1 = reactive(input$Patient)
@@ -561,6 +603,10 @@ server <- function(input, output) {
       onehunda_switch = hs_()
       dosedependent_auc = dd_()
       p_ic = ic_()
+      NPS_title = t1_()
+      NPM_title = t2_()
+      PL_title = t3_()
+      NPB_title = t4_()
       
       p1 = NULL
       if( check_box2 ){
@@ -572,8 +618,8 @@ server <- function(input, output) {
           return('')
         }
         block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch )
-        # check_boxes = c("Point Samples","Spline"); dosedependent_auc=T
-        p1 = PlotOverlay(block2, check_boxes, dosedependent_auc)
+    
+        p1 = PlotOverlay(block2, check_boxes, dosedependent_auc, p_ic, NPS_title)
       }
       if( (!check_box2) & check_box0){
         block = extract_dose_block(df_list, drug, patient, treatment, samp)
@@ -582,7 +628,7 @@ server <- function(input, output) {
           showNotification('Please select other drug-patient characteristics')
           return('')
         }
-        p1 = plot_monotoneFit(block2, dosedependent_auc, p_ic )
+        p1 = plot_monotoneFit(block2, dosedependent_auc, p_ic, NPM_title )
       }
       if( (!check_box2) & (!check_box0) & check_box1 ){
         block = extract_dose_block(df_list, drug, patient, treatment, samp)
@@ -591,7 +637,7 @@ server <- function(input, output) {
           showNotification('Please select other drug-patient characteristics')
           return('')
         }
-        p1 = plot_sigmodiFit(block2, dosedependent_auc, p_ic)
+        p1 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title)
       }
       if( (!check_box2) & (!check_box0) & (!check_box1) &  check_box3 ){
         block = extract_dose_block(df_list, drug, patient, treatment, samp)
@@ -600,7 +646,7 @@ server <- function(input, output) {
           showNotification('Please select other drug-patient characteristics')
           return('')
         }
-        p1 = plot_npbFit(block2, dosedependent_auc, p_ic)
+        p1 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title)
       }
       
       p1
@@ -623,6 +669,10 @@ server <- function(input, output) {
       onehunda_switch = hs_()
       dosedependent_auc = dd_()
       p_ic = ic_()
+      NPS_title = t1_()
+      NPM_title = t2_()
+      PL_title = t3_()
+      NPB_title = t4_()
       
       p2 = NULL
       
@@ -633,25 +683,18 @@ server <- function(input, output) {
           showNotification('Please select other drug-patient characteristics')
           return('')
         }
-        p2 = plot_monotoneFit(block2, dosedependent_auc, p_ic )
+        p2 = plot_monotoneFit(block2, dosedependent_auc, p_ic, NPM_title )
       }
-      if(check_box2 & !check_box0 & check_box1){
+      if( (check_box2 & !check_box0 & check_box1) |
+          (!check_box2 & check_box0 & check_box1)
+          ){
         block = extract_dose_block(df_list, drug, patient, treatment, samp)
         block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch )
         if(is.null(block)){
           showNotification('Please select other drug-patient characteristics')
           return('')
         }
-        p2 = plot_sigmodiFit(block2, dosedependent_auc, p_ic)
-      }
-      if(!check_box2 & check_box0 & check_box1){
-        block = extract_dose_block(df_list, drug, patient, treatment, samp)
-        block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch )
-        if(is.null(block)){
-          showNotification('Please select other drug-patient characteristics')
-          return('')
-        }
-        p2 = plot_sigmodiFit(block2, dosedependent_auc, p_ic)
+        p2 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title)
       }
       if((!check_box2 & !check_box0 & check_box1 & check_box3) |
          (!check_box2 & check_box0 & !check_box1 & check_box3) |
@@ -662,7 +705,7 @@ server <- function(input, output) {
           showNotification('Please select other drug-patient characteristics')
           return('')
         }
-        p2 = plot_npbFit(block2, dosedependent_auc, p_ic)
+        p2 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title)
       }
       
       if(!is.null(p2)) p2
@@ -684,6 +727,10 @@ server <- function(input, output) {
       onehunda_switch = hs_()
       dosedependent_auc = dd_()
       p_ic = ic_()
+      NPS_title = t1_()
+      NPM_title = t2_()
+      PL_title = t3_()
+      NPB_title = t4_()
       
       p3 = NULL
       
@@ -694,7 +741,7 @@ server <- function(input, output) {
           return('')
         }
         block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch )
-        p3 = plot_sigmodiFit(block2, dosedependent_auc, p_ic)
+        p3 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title)
       }
       
       if( (!check_box2 & check_box0 & check_box1 & check_box3) |
@@ -707,7 +754,7 @@ server <- function(input, output) {
           return('')
         }
         block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch, drop_values=F )
-        p3 = plot_npbFit(block2, dosedependent_auc, p_ic)
+        p3 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title)
       }
       
       if(!is.null(p3)) p3
@@ -730,6 +777,10 @@ server <- function(input, output) {
       onehunda_switch = hs_()
       dosedependent_auc = dd_()
       p_ic = ic_()
+      NPS_title = t1_()
+      NPM_title = t2_()
+      PL_title = t3_()
+      NPB_title = t4_()
       
       p4=NULL
       if(check_box0 & check_box1 & check_box2 & check_box3){
@@ -740,7 +791,7 @@ server <- function(input, output) {
         }
         block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch, drop_values=F )
         
-        p4 = plot_npbFit(block2, dosedependent_auc, p_ic)
+        p4 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title)
         p4
       }
       showNotification("Plot generated", duration = 1, id = "message")
@@ -768,15 +819,15 @@ server <- function(input, output) {
         # Correct block 2 for input signals when added
         block = extract_dose_block(df_list, input$Drug, input$Patient, input$Treatment, input$Sample)
         block2 = preprocess_data(block)
-        p1 = PlotOverlay(block2, input$checkgroup1, input$dose_dependent_auc, input$p_ic)
+        p1 = PlotOverlay(block2, input$checkgroup1, input$dose_dependent_auc, input$p_ic, input$NPS_title)
         
-        p2 = plot_sigmodiFit(block2, input$dose_dependent_auc, input$p_ic)
-        p3 = plot_monotoneFit(block2, input$dose_dependent_auc, input$p_ic)
+        p2 = plot_sigmodiFit(block2, input$dose_dependent_auc, input$p_ic, input$PL_title)
+        p3 = plot_monotoneFit(block2, input$dose_dependent_auc, input$p_ic, input$NPM_title)
         if(input$NPBPlot){
           block2 = preprocess_data(block, drop_values=F)
-          p4 = plot_npbFit(block2, input$dose_dependent_auc, input$p_ic)
+          p4 = plot_npbFit(block2, input$dose_dependent_auc, input$p_ic, input$NPB_title)
         }
-        p1 = output$Plot4
+        # p1 = output$Plot4
         
         wid  = 6*4
         hei = 4*4
@@ -877,6 +928,10 @@ server <- function(input, output) {
       onehunda_switch = hs()
       dosedependent_auc = dd()
       p_ic = ic()
+      NPS_title = tt1()
+      NPM_title = t2()
+      PL_title = t3()
+      NPB_title = t4()
       
       block = mydata()
       
@@ -888,17 +943,17 @@ server <- function(input, output) {
       block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
       
       if( check_box2 ){
-        p1 = PlotOverlay(block2, check_boxes, dosedependent_auc, p_ic)
+        p1 = PlotOverlay(block2, check_boxes, dosedependent_auc, p_ic, NPS_title)
       }
       if( (!check_box2) & check_box0){
-        p1 = plot_monotoneFit(block2, dosedependent_auc, p_ic)
+        p1 = plot_monotoneFit(block2, dosedependent_auc, p_ic, NPM_title)
       }
       if( (!check_box2) & (!check_box0) & check_box1 ){
-        p1 = plot_sigmodiFit(block2, dosedependent_auc, p_ic)
+        p1 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title)
       }
       if( (!check_box2) & (!check_box0) & (!check_box1) & check_box3 ){
         block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-        p1 = plot_npbFit(block2, dosedependent_auc, p_ic)
+        p1 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title)
       }
       
       p1
@@ -917,6 +972,10 @@ server <- function(input, output) {
       onehunda_switch = hs()
       dosedependent_auc = dd()
       p_ic = ic()
+      NPS_title = tt1()
+      NPM_title = t2()
+      PL_title = t3()
+      NPB_title = t4()
       
       block = mydata()
       
@@ -930,16 +989,16 @@ server <- function(input, output) {
       
       
       if(check_box2 & check_box0 ){
-        p2 = plot_monotoneFit(block2, dosedependent_auc, p_ic)
+        p2 = plot_monotoneFit(block2, dosedependent_auc, p_ic, NPM_title)
       }
       if(check_box2 & !check_box0 & check_box1){
-        p2 = plot_sigmodiFit(block2, dosedependent_auc, p_ic)
+        p2 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title)
       }
       if((!check_box2 & !check_box0 & check_box1 & check_box3) |
          (!check_box2 & check_box0 & !check_box1 & check_box3) |
          (check_box2 & !check_box0 & !check_box1 & check_box3)){
         block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-        p2 = plot_npbFit(block2, dosedependent_auc, p_ic)
+        p2 = plot_npbFit(block2, dosedependent_auc, p_ic, , NPB_title)
       }
       
       if(!is.null(p2)) p2
@@ -957,6 +1016,10 @@ server <- function(input, output) {
       onehunda_switch = hs()
       dosedependent_auc = dd()
       p_ic = ic()
+      NPS_title = tt1()
+      NPM_title = t2()
+      PL_title = t3()
+      NPB_title = t4()
       
       block = mydata()
       
@@ -969,13 +1032,13 @@ server <- function(input, output) {
       block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
       
       if(check_box2 & check_box0 & check_box1){
-        p3 = plot_sigmodiFit(block2, dosedependent_auc, p_ic)
+        p3 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title)
       }
       if( (!check_box2 & check_box0 & check_box1 & check_box3) |
           (check_box2 & !check_box0 & check_box1 & check_box3) |
           (check_box2 & check_box0 & !check_box1 & check_box3) ){
         block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-        p3 = plot_npbFit(block2, dosedependent_auc, p_ic)
+        p3 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title)
       }
       p3
       
@@ -992,6 +1055,10 @@ server <- function(input, output) {
       onehunda_switch = hs()
       dosedependent_auc = dd()
       p_ic = ic()
+      NPS_title = tt1()
+      NPM_title = t2()
+      PL_title = t3()
+      NPB_title = t4()
       
       block = mydata()
       
@@ -1004,7 +1071,7 @@ server <- function(input, output) {
       block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
       
       if(check_box2 & check_box0 & check_box1 & check_box3){
-        p4 = plot_npbFit(block2, dosedependent_auc, p_ic)
+        p4 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title)
       }
       showNotification("Plot generated", duration = 1, id = "message")
       p4
@@ -1033,12 +1100,12 @@ server <- function(input, output) {
         # I might have to do this for computing the statistics and downloading them efficiently
         block = mydata()
         block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
-        p1 = PlotOverlay(block2, input$checkgroup1, input$dosedep_auc, input$p_ic)
-        p2 = plot_sigmodiFit(block2, input$dosedep_auc, input$p_ic)
-        p3 = plot_monotoneFit(block2, input$dosedep_auc, input$p_ic)
+        p1 = PlotOverlay(block2, input$checkgroup1, input$dosedep_auc, input$p_ic, input$NPS_title)
+        p2 = plot_sigmodiFit(block2, input$dosedep_auc, input$p_ic, input$PL_title)
+        p3 = plot_monotoneFit(block2, input$dosedep_auc, input$p_ic, input$NPM_title)
         if(input$NPBPlot){
           block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch, drop_values=F)
-          p4 = plot_npbFit(block2, input$dosedep_auc, input$p_ic)
+          p4 = plot_npbFit(block2, input$dosedep_auc, input$p_ic, input$NPB_title)
         }
         
         
@@ -1170,7 +1237,9 @@ server <- function(input, output) {
       }
       if(input$SigmoidPlot){
         list_pl = sigmoid_fit(block2, input$dosedep_auc, input$p_ic)
+        list_pl$logistic_curve = NULL
         l2 = unlist(list_pl)
+        
       }
       if(input$MonotonePlot){
         list_npm = monotone_fit(block2, input$dosedep_auc, input$p_ic)
@@ -1192,7 +1261,7 @@ server <- function(input, output) {
         M = matrix(NA, nrow=n, ncol=2*4)
         ic_name = paste('ic', p_ic, sep='')
         if(!is.null(l1)){
-          M[1:length(l1),1] = c(ic_name, "mse", "auc", "drug_span_grad_angle", "spline_angles1",
+          M[1:length(l1),1] = c(ic_name, 'y_ic',"mse", "auc", "drug_span_grad_angle", "spline_angles1",
                                 "spline_angles2", "spline_angles3", "spline_angles4", "spline_angles5",
                                 "spline_angles6", "spline_angles7", "spline_angles8", "spline_angles9",
                                 "spline_angles10", "spline_angles11", "spline_angles12", "spline_angles13",
@@ -1201,19 +1270,19 @@ server <- function(input, output) {
           M[1:length(l1),2] = l1
         }
         if(!is.null(l2)){
-          M[1:length(l2),3] = c(ic_name, "mse", "auc", "coefficients.b:(Intercept)", "coefficients.c:(Intercept)",
+          M[1:length(l2),3] = c(ic_name, 'y_ic', "mse", "auc", "coefficients.b:(Intercept)", "coefficients.c:(Intercept)",
                                 "coefficients.d:(Intercept)", "coefficients.e:(Intercept)")
           M[1:length(l2),4] = l2
         }
         if(!is.null(l3)){
-          M[1:length(l3),5] = c(ic_name, "mse", "auc", "y_fit1", "y_fit2", "y_fit3", "y_fit4",
+          M[1:length(l3),5] = c(ic_name, 'y_ic', "mse", "auc", "y_fit1", "y_fit2", "y_fit3", "y_fit4",
                                 "y_fit5", "y_fit6", "y_fit7", "y_fit8", "y_fit9", "y_fit10",
                                 "y_fit11", "y_fit12", "y_fit13", "y_fit14", "y_fit15", "y_fit16",
                                 "y_fit17", "y_fit18", "y_fit19", "y_fit20", "y_fit21")
           M[1:length(l3),6] = l3
         }
         if(!is.null(l4)){
-          M[1:length(l4),7] = c(ic_name, "mse", "auc", "lambda", "C_est", "sigma2_est",
+          M[1:length(l4),7] = c(ic_name, 'y_ic', "mse", "auc", "lambda", "C_est", "sigma2_est",
                                 "a_est1", "a_est2", "a_est3", "a_est4",
                                 "a_est5", "a_est6", "a_est7", "a_est8",
                                 "a_est9", "a_est10", "a_est11",

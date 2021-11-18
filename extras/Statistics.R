@@ -243,19 +243,26 @@ for( d in drugs){
   }
 }
 
-colnames(df_stats) = c('id','ic50_np','mse_np','auc_np','ic50_mf','mse_mf','auc_mf','ic50_sf','mse_sf','auc_sf','ic50_npb','mse_npb','auc_npb','lambda')
-date <- Sys.Date()
-write.csv(df_stats , paste0('data/Stats_models',date, '.csv'))
+# colnames(df_stats) = c('id','ic50_np','mse_np','auc_np','ic50_mf','mse_mf','auc_mf','ic50_sf','mse_sf','auc_sf','ic50_npb','mse_npb','auc_npb','lambda')
+# date <- Sys.Date()
+# write.csv(df_stats , paste0('data/Stats_models',date, '.csv'))
+
+df_stats = read.csv('/Users/bwilliams/GoogleDrive/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS/data/Stats_models2021-11-04.csv')
+
+# Take out outlier (degenerate  fit)
+df_stats2 = df_stats %>% 
+  mutate(ic50_sf = ifelse(df_stats$ic50_sf>300, NA, ic50_sf ))
 
 # Boxplot
 library(tidyr)
-temp = df_stats[,c('ic50_np','ic50_mf','ic50_sf','ic50_npb')]
+temp = df_stats2[,c('ic50_np','ic50_mf','ic50_sf','ic50_npb')]
 names(temp) = c('NonParam', 'Monotone', 'Logistic', 'NPB')
 df = gather(temp)
 p1 = ggplot(df, aes(x=key, y=value, fill=key))+
-    geom_boxplot( )+
+    geom_violin( ) +
+    geom_boxplot(width=0.1)+
     scale_fill_brewer(palette="BuPu") +
-    coord_cartesian(ylim =  c(0, 20))+ 
+    coord_cartesian(ylim =  c(0, 30))+ 
     ylab(expression(IC[50])) +
     xlab('Model') 
     
@@ -263,7 +270,8 @@ temp = df_stats[,c('mse_np','mse_mf','mse_sf','mse_npb')]
 names(temp) = c('NonParam', 'Monotone', 'Logistic','NPB')
 df = gather(temp)
 p2 = ggplot(df, aes(x=key, y=value, fill=key))+
-  geom_boxplot( )+
+  geom_violin( )+
+  geom_boxplot(width=0.1) +
   scale_fill_brewer(palette="BuPu") +
   coord_cartesian(ylim =  c(0, 300))+ 
   ylab('Mean Square Error') +
@@ -273,7 +281,8 @@ temp = df_stats[,c('auc_np','auc_mf','auc_sf','auc_npb')]
 names(temp) = c('NonParam', 'Monotone', 'Logistic','NPB')
 df = gather(temp)
 p3 = ggplot(df, aes(x=key, y=value, fill=key))+
-  geom_boxplot( )+
+  geom_violin( )+
+  geom_boxplot(width=0.1)+
   scale_fill_brewer(palette="BuPu") +
   coord_cartesian(ylim =  c(0, 2500))+ 
   ylab('AUC') +
@@ -282,8 +291,10 @@ p3 = ggplot(df, aes(x=key, y=value, fill=key))+
 library(gridExtra)
 p = arrangeGrob(p1, p2,p3, ncol=3, top = 'Statistics by model')
 
+title = paste('extras/boxplots_stats_',Sys.Date(),'.png', sep='')
+
 setwd("/Users/bwilliams/GoogleDrive/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS")
-ggsave('extras/boxplots_stats.png', plot=p, device = 'png',dpi = 400, width = 6*5, height = 6, unit = 'cm')
+ggsave(title, plot=p, device = 'png',dpi = 400, width = 6*5, height = 6, unit = 'cm')
 
 # Test differences parametric and  non parametric
 # no normality, so Wilcoxon rank

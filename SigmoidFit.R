@@ -80,7 +80,7 @@ sigmoid_fit = function(block2, dose_dependent_auc=TRUE, p_ic = 50){
 
 
 
-plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50){
+plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, title = ''){
   
   m = dim(block2)[2]-2
   if(m==0) m <- m+1
@@ -110,6 +110,8 @@ plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50){
     y_lim_right = max(block2[,2:(m+1)], na.rm=T)
   }
   
+  if(title=='') title = 'Parametric Logistic'
+  
   p = plot_initialize(block2)
   p = plot_point_samples(p, block2)
   
@@ -120,7 +122,7 @@ plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50){
   
   # We can add scalecolormanual since there is no other layer  to add on top
   p <- p +  
-    ggtitle('Parametric Logistic') +
+    ggtitle(title) +
     geom_function(fun = logistic_curve, aes(colour='PL')) + 
     geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
     geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) + 
@@ -143,7 +145,7 @@ plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50){
 }
 
 # p = plot_sigmodiFit(block2, T,30)
-# p
+# p + theme(legend.box=)
 
 # Use package nplr
 # https://cran.r-project.org/web/packages/nplr/vignettes/nplr.pdf

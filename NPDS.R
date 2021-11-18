@@ -28,7 +28,7 @@ library(ggrepel)
 
 
 
-plot_initialize = function(block2){
+plot_initialize = function(block2, title=''){
   
   m = dim(block2)[2]-2
   if(m==0) m <- m+1
@@ -38,6 +38,8 @@ plot_initialize = function(block2){
   }else{
     y_lim_right = max(block2[,2:(m+1)], na.rm=T)
   }
+  
+  if(title=='') title = 'Nonparametric Spline'
   
   # Initialize global variables that will be filled in in legend
   colls <<- c()
@@ -51,7 +53,7 @@ plot_initialize = function(block2){
     scale_x_log10(n.breaks=12) + 
     ylim(min(block2[,2:(m+1)], na.rm=T), y_lim_right) +
     ylab('Drug response') + 
-    ggtitle( 'Nonparametric Spline' ) +
+    ggtitle( title ) +
     xlab(expression( paste(italic(Dose),phantom(x) ,mu, M )) ) +
     theme(plot.title = element_text(face="bold", size = 25, hjust=0.5),
           axis.title = element_text(face="italic", 
@@ -81,6 +83,8 @@ plot_initialize = function(block2){
 
 
 nonparaametric_fit = function(block2, dose_dependent_auc=T, p_ic = 50){
+  
+  m = dim(block2)[2]-2
   
   y_fit = block2$y_mean
   x_fit = block2$doses
@@ -176,7 +180,7 @@ nonparaametric_fit = function(block2, dose_dependent_auc=T, p_ic = 50){
 
 plot_NPDS = function(p, block2, dose_dependent_auc=TRUE, p_ic=50){
   
-  
+  m = dim(block2)[2]-2
   list_nps = nonparaametric_fit(block2, dose_dependent_auc=T, p_ic )
   x_ic = list_nps$ic50
   y_ic = list_nps$y_ic
@@ -262,19 +266,6 @@ plot_point_samples =  function(p, block2){
   return(p)
 }
 
-# p = plot_initialize(block2)
-# p = plot_point_samples(p, block2)
-# p = plot_NPDS(p, block2 )
-# p = p + scale_colour_manual(name="Labels",values=colls, 
-#                             guide = guide_legend(
-#                               override.aes = 
-#                                 list(
-#                                   linetype = linetypes,
-#                                   shape = shapes
-#                                   )
-#                               )
-#                             )
-
 
 # Empirical variability band
 plot_minmaxBands = function(p, block2){
@@ -288,13 +279,13 @@ plot_minmaxBands = function(p, block2){
   # 
   # Pretty ggplot visualization
   
-  colls <<- c(colls, "Min-max band"="dimgrey")
+  colls <<- c(colls, "MMB"="dimgrey")
   linetypes <<- c(linetypes, "solid")
   shapes <<- c(shapes, NA)
   alphas <<- c(alphas, 1)
   p = p + 
     geom_line(aes(doses, block2_y_min), color='dimgrey', linetype = 'dashed') +
-    geom_line(aes(doses, block2_y_max, colour='Min-max bands'), linetype = 'dashed')  
+    geom_line(aes(doses, block2_y_max, colour='MMB'), linetype = 'dashed')  
   
   return(p)
 }
@@ -308,14 +299,14 @@ plot_empiricalVariabilityBand = function(p, block2){
   block2_doses_end  = lead(block2$doses)
   block2_adjMeanLine = (block2$y_mean + lead(block2$y_mean))/2
   # Pretty ggplot visualization
-  colls <<- c(colls, "Viability band"="darkgreen")
+  colls <<- c(colls, "EVB"="darkgreen")
   linetypes <<- c(linetypes, "solid")
   shapes <<- c(shapes, NA)
   alphas <<- c(alphas, 1)
   p = p +
     geom_segment(aes(x=doses, y=block2_adjMeanLine, xend = block2_doses_end, yend=block2_adjMeanLine, color='darkgreen') ) +
     geom_line(aes(x=doses, y=block2_adjMeanLine) ,  color='darkgreen') +
-    geom_line(aes(x = block2_doses_end, y=block2_adjMeanLine,  colour='Viability band') )
+    geom_line(aes(x = block2_doses_end, y=block2_adjMeanLine,  colour='EVB') )
   
   return(p)  
 }
@@ -339,12 +330,12 @@ plot_drugSpanGradient = function(p, block2){
   # angle_degrees_plot = paste0(round(angle_degrees,1), intToUtf8(176))
   angle_degrees_plot = round(angle_degrees,1) 
   
-  colls <<- c(colls, "Drug-span grad"="darkred")
+  colls <<- c(colls, "DSG"="darkred")
   linetypes <<- c(linetypes, "solid")
   shapes <<- c(shapes, NA)
   alphas <<- c(alphas, 1)
   p = p + 
-    geom_smooth(aes(colour = 'Drug-span grad'), method = "lm", se = F,  linetype = 'dashed', size=0.8, formula =  y ~ x) +
+    geom_smooth(aes(colour = 'DSG'), method = "lm", se = F,  linetype = 'dashed', size=0.8, formula =  y ~ x) +
     # annotate('text',x = max(block2$doses)*0.8, y = max(block2[,2:(m+1)], na.rm=T)*0.8, size = 5, label =  bquote( theta~'='~ .(angle_degrees_plot) ) ) 
     annotate('text',x = min(block2$doses)*1.2, y = min(block2[,2:(m+1)], na.rm=T)*1.2,
              size = 5, 
@@ -419,17 +410,17 @@ plot_relativedoses = function(p, block2, relative = TRUE){
   }
   
   if(relative == TRUE){
-    colls <<- c(colls, "Absolute doses"="chocolate4")
+    colls <<- c(colls, "AD"="chocolate4")
     angles_degrees_plot = c(paste0(round(angles_degrees-angle_degrees,1), intToUtf8(176)) ,'')
     p = p +  
-      ggrepel::geom_text_repel(aes(label = angles_degrees_plot, colour='Absolute doses'), show.legend = F, alpha=1) 
+      ggrepel::geom_text_repel(aes(label = angles_degrees_plot, colour='AD'), show.legend = F, alpha=1) 
     #+  annotate('text',x = min(block2$doses)*1.2, y = min(block2[,2:(m+1)])*1.1, size = 5,label =  paste0('CR=', concave_ratio), hjust=0) 
   }
   if(relative == FALSE){
-    colls <<- c(colls, "Relative doses"="purple")
+    colls <<- c(colls, "RD"="purple")
     angles_degrees_plot = c(paste0(round(angles_degrees,1), intToUtf8(176)) ,'')
     p = p +  
-      ggrepel::geom_text_repel(aes(label = angles_degrees_plot, colour='Relative doses'), show.legend = F, alpha=1) 
+      ggrepel::geom_text_repel(aes(label = angles_degrees_plot, colour='RD'), show.legend = F, alpha=1) 
     #+  annotate('text',x = min(block2$doses)*1.2, y = min(block2[,2:(m+1)])*1.1, size = 5,label =  paste0('CR=', concave_ratio), hjust=0) 
   }
   
@@ -492,22 +483,15 @@ plot_relativedoses = function(p, block2, relative = TRUE){
 # # Note that it does not exist for all parameter combinations
 # block = extract_dose_block(df_list, drug = '5FU', patient = 'P1', treatment = 'T1', sample = 1)
 # block2 = preprocess_data(block, keep_outliers = F)
-# p = plot_initialize(block2 )
+# p = plot_initialize(block2,  title ='asdf' )
 # p = plot_point_samples(p, block2)
 # p = plot_NPDS(p, block2, dose_dependent_auc = T, p_ic = 100)
 # p = plot_minmaxBands(p, block2)
 # p = plot_empiricalVariabilityBand(p, block2)
 # p = plot_drugSpanGradient(p, block2)
 # p = plot_relativedoses(p, block2)
-# p <- p +
-#   scale_colour_manual(name="Labels",values=colls,
-#                       guide = guide_legend(
-#                         override.aes =
-#                           list(
-#                             linetype = linetypes,
-#                             shape = shapes,
-#                             alpha = alphas
-#                             )))
+# p <- p +scale_colour_manual(name="Labels",values=colls,guide = guide_legend(override.aes =list(linetype = linetypes,shape = shapes,alpha = alphas)))
+# p = p + theme(legend.key.size = unit(0.2, "cm"))
 # p
 # p = plot_monotoneFit( block2)
 #

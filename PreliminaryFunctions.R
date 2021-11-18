@@ -189,9 +189,9 @@ sample_meansquarederror = function(y, samples){
   mean(as.matrix((samples-y)^2) , na.rm=T)
 }
 
-PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50){
+PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = ''){
   # controler for generated plot depending on checkboxes
-  p = plot_initialize(block2 )
+  p = plot_initialize(block2, title )
   if(is.null(check_boxes) ) return(p)
   
   if("Point Samples" %in% check_boxes)
@@ -200,7 +200,7 @@ PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50){
     p <- plot_NPDS(p, block2, dose_dependent_auc, p_ic)
   if("Min-Max Bands" %in% check_boxes)
     p <- plot_minmaxBands(p, block2)
-  if("Empirical Viability bands" %in% check_boxes)
+  if("Empirical Viability Bands" %in% check_boxes)
     p <- plot_empiricalVariabilityBand(p, block2)
   if("Drug Span Gradient" %in% check_boxes)
     p <- plot_drugSpanGradient(p, block2)

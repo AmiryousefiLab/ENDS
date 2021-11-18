@@ -295,7 +295,7 @@ npb_fit = function(block2, dose_dependent_auc=TRUE, p_ic=50){
   return(list_stats)  
 }
 
-plot_npbFit = function(block2, dose_dependent_auc=TRUE, p_ic=50){
+plot_npbFit = function(block2, dose_dependent_auc=TRUE, p_ic=50, title = ''){
   
   m = dim(block2)[2]-2 
   if(m==0) m <- m+1
@@ -328,6 +328,7 @@ plot_npbFit = function(block2, dose_dependent_auc=TRUE, p_ic=50){
     y_lim_right = max(block2[,2:(m+1)], na.rm=T)
   }
   
+  if(title == '') title = 'Nonparemetric Bayesian'
   p = plot_initialize(block2)
   p = plot_point_samples(p, block2)
   
@@ -338,7 +339,7 @@ plot_npbFit = function(block2, dose_dependent_auc=TRUE, p_ic=50){
   
   # We can add scalecolormanual since there is no other layer  to add on top
   p <- p +  
-    ggtitle('Nonparemetric Bayesian') +
+    ggtitle( title ) +
     geom_function(fun = posterior_predictive_integrate, aes(colour='NPB')) + 
     geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
     geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) + 

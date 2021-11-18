@@ -89,7 +89,9 @@ monotone_fit = function(block2, dose_dependent_auc=TRUE, p_ic = 50){
     auc =  line_integral(1:length(x_fit), y_fit)
   
   
+  
   list_stats = list( ic50 = x_ic, 
+                     y_ic = y_ic,
                      mse = mse,
                      auc = auc,
                      y_fit = y_fit
@@ -99,7 +101,7 @@ monotone_fit = function(block2, dose_dependent_auc=TRUE, p_ic = 50){
   return(list_stats)  
 }
 
-plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50){
+plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = ''){
   
   mono1 = fdrtool::monoreg(x = log10(block2$doses), y = block2$y_mean, type = 'antitonic')
   
@@ -136,6 +138,8 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50){
   if(dose_dependent_auc==FALSE) 
     auc =  line_integral(1:length(x_fit), y_fit)
   
+  if(title=='') title = 'Nonparametric Monotonic'
+  
   text0 = p_ic
   text1 = max(round(x_ic,2), signif(x_ic,3) )
   text2 = round(mse,2)
@@ -157,7 +161,7 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50){
   
   options(warn=-1)
   p = p +
-    ggtitle('Nonparametric Monotonic') +
+    ggtitle( title ) +
     geom_line(aes(block2$doses, block2_yf, colour ='NPM')) + 
     geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
     geom_vline(  aes(xintercept =  x_ic, colour="IC" ),  linetype="dotted", show.legend = F) + 

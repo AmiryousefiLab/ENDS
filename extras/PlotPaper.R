@@ -7,41 +7,6 @@ source('IsotonicRegressionFit.R')
 source('SigmoidFit.R') 
 source('MH_AMspline.R')
 
-# Generate plot for paper
-
- # artificial input
-input = list(mean_switch=T, outlier_switch=T, onehunda_switch=T, dosedep_auc=T,
-             checkgroup1 = c("Point samples" ,
-                             "Spline fit" ,
-                             "Min-max bands",
-                             "Empirical viability bands",
-                             "Drug span gradient",
-                             # "Absolute doses" ,
-                             "Relative doses")
-              )
-
-df = openxlsx::read.xlsx('data/Drug_response_S8.xlsx', sheet = 1)
-df_list  = read_excel_allsheets('data/Drug_response_S8.xlsx')
-df_example = read.csv('data/Example1.csv')
-
-block = df_example
-block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
-
-# Plot monotone and logistic on same plot
-# Only one single x axis
-# Change color of IC_50 to match line
-# Tickers not cross over line 
-
-p1 = PlotOverlay(block2, input$checkgroup1, input$dosedep_auc)
-# p2 = plot_monotoneFit(block2, input$dosedep_auc)
-# p3 = plot_sigmodiFit(block2, input$dosedep_auc)
-# 
-# wid  = 6*4
-# hei = 4*4
-# p = gridExtra::grid.arrange(p1, p2, p3, ncol=1, nrow=3, widths = wid, heights = c(hei,hei,hei) )
-# ggsave(file,plot = p,device = input$file_type,dpi = input$resolution,width = wid, height = hei*3, unit = 'cm' )
-
-
 plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
   
   m = dim(block2)[2]-2
@@ -89,14 +54,14 @@ plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
   p = plot_initialize(block2)
   p = plot_point_samples(p, block2)
   
-  colls <<- c(colls, "P Logistic"="red", "IC50PL"="red")
+  colls <<- c(colls, "PL"="red", "IC50PL"="red")
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   
   
   # We can add scalecolormanual since there is no other layer  to add on top
   p <- p +  
-    geom_function(fun = m0$curve[[1]], aes(colour='P Logistic')) + 
+    geom_function(fun = m0$curve[[1]], aes(colour='PL')) + 
     geom_hline( yintercept =  y_ic_sigm, color='red',  linetype="dotted") +
     geom_vline(  aes(xintercept =  x_ic_sigm, colour="IC50PL"),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
@@ -144,13 +109,13 @@ plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
   }
   
   
-  colls <<- c(colls, "NP Monotone"="darkgreen", "IC50NPM"="darkgreen")
+  colls <<- c(colls, "NPM"="darkgreen", "IC50NPM"="darkgreen")
   linetypes <<- c(linetypes, "solid","dotted")
   shapes <<- c(shapes, NA, NA)
   
   options(warn=-1)
   p = p +
-    geom_line(aes(block2$doses, block2_yf, colour ='NP Monotone')) + 
+    geom_line(aes(block2$doses, block2_yf, colour ='NPM')) + 
     geom_hline( yintercept =  y_ic_mono, color='darkgreen',  linetype="dotted") +
     geom_vline(  aes(xintercept =  x_ic_mono, colour="IC50NPM"),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =min(block2$doses), 
@@ -184,7 +149,7 @@ plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
     y_lim_right = max(block2[,2:(m+1)], na.rm=T)
   }
   
-  colls <<- c(colls, "NP Bayesian"="purple", "IC50NPB"="purple")
+  colls <<- c(colls, "NPB"="purple", "IC50NPB"="purple")
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   
@@ -192,7 +157,7 @@ plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
   # We can add scalecolormanual since there is no other layer  to add on top
   p <- p +  
     
-    geom_function(fun = posterior_predictive_integrate, aes(colour='NP Bayesian')) + 
+    geom_function(fun = posterior_predictive_integrate, aes(colour='NPB')) + 
     geom_hline( yintercept =  y_ic, color='purple',  linetype="dotted") +
     geom_vline(  aes(xintercept =  x_ic, colour="IC50NPB"),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =min(block2$doses), 
@@ -214,13 +179,36 @@ plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
   return(p)
 }
 
+# Generate plot for paper
+
+# artificial input
+input = list(mean_switch=T, outlier_switch=T, onehunda_switch=T, dosedep_auc=T,
+             checkgroup1 = c("Point Samples" ,
+                             "Spline" ,
+                             "Min-Max Bands",
+                             "Empirical Viability Bands",
+                             "Drug Span Gradient",
+                             # "Absolute doses" ,
+                             "Relative Doses")
+)
+
+df = openxlsx::read.xlsx('data/Drug_response_S8.xlsx', sheet = 1)
+df_list  = read_excel_allsheets('data/Drug_response_S8.xlsx')
+df_example = read.csv('data/Example1.csv')
+
+block = df_example
+block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
+
+p1 = PlotOverlay(block2, input$checkgroup1, input$dosedep_auc)
 p1_mod = p1  + theme(axis.title.x=element_blank(),
                             axis.text.x=element_blank(),
-                            axis.ticks.x=element_blank())+
-  ggtitle('NP Spline, NP Monotone, \n NP Bayesian and Parametric  Logistic')
+                            axis.ticks.x=element_blank(),
+                     plot.title = element_blank())
   
 p_t = plot_sigmodiMonotoneNpbFit(block2) +
   labs(title = NULL)
+
+
 
 library(gridExtra)
 p_paper = gridExtra::grid.arrange(rbind(ggplotGrob(p1_mod), ggplotGrob(p_t), size = "first"))
