@@ -1,6 +1,5 @@
 
 setwd('/Users/bwilliams/GoogleDrive/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS')
-
 source('PreliminaryFunctions.R')
 source('NPDS.R')
 source('IsotonicRegressionFit.R')
@@ -158,9 +157,6 @@ sigmoid_fit = function(block2){
   
   return(list_stats)  
 }
-
-
-
 simple_plot = function(block2, list_np, list_mf, list_sf, list_npb, d,p,t,sample){
   y_max = max(as.matrix(block2[,2:5]))
   x = block2$doses
@@ -216,32 +212,32 @@ samples = 1:5
 df_stats = data.frame(matrix(ncol=14, nrow=0))
 colnames(df_stats) = c('id','ic50_np','mse_np','auc_np','ic50_mf','mse_mf','auc_mf','ic50_sf','mse_sf','auc_sf','ic50_npb','mse_npb','auc_npb','lambda')
 
-for( d in drugs){
-  for(p in patients){
-    for(t in treatments){
-      for(sample in samples){
-            print(paste(d,p,t,sample, sep='_'))
-            block = extract_dose_block(df_list, d, p, t, sample)
-            if(!is.null(block)){
-              block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
-              list_np = nonparaametric_fit(block2)
-              list_mf = monotone_fit(block2)
-              list_sf = sigmoid_fit(block2)
-              list_npb = npb_fit(block2)
-              id = paste(d,p,t,sample, sep='_')
-              df_stats = rbind( df_stats,
-                                cbind(id,
-                                      as.data.frame(list_np),
-                                      as.data.frame(list_mf),
-                                      as.data.frame(list_sf),
-                                      as.data.frame(list_npb[1:4]) ) )
-              # make a plot with all fits to check convergence
-              simple_plot(block2, list_np, list_mf, list_sf, list_npb,d,p,t,sample)
-            }
-      }
-    }
-  }
-}
+# for( d in drugs){
+#   for(p in patients){
+#     for(t in treatments){
+#       for(sample in samples){
+#             print(paste(d,p,t,sample, sep='_'))
+#             block = extract_dose_block(df_list, d, p, t, sample)
+#             if(!is.null(block)){
+#               block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
+#               list_np = nonparaametric_fit(block2)
+#               list_mf = monotone_fit(block2)
+#               list_sf = sigmoid_fit(block2)
+#               list_npb = npb_fit(block2)
+#               id = paste(d,p,t,sample, sep='_')
+#               df_stats = rbind( df_stats,
+#                                 cbind(id,
+#                                       as.data.frame(list_np),
+#                                       as.data.frame(list_mf),
+#                                       as.data.frame(list_sf),
+#                                       as.data.frame(list_npb[1:4]) ) )
+#               # make a plot with all fits to check convergence
+#               simple_plot(block2, list_np, list_mf, list_sf, list_npb,d,p,t,sample)
+#             }
+#       }
+#     }
+#   }
+# }
 
 # colnames(df_stats) = c('id','ic50_np','mse_np','auc_np','ic50_mf','mse_mf','auc_mf','ic50_sf','mse_sf','auc_sf','ic50_npb','mse_npb','auc_npb','lambda')
 # date <- Sys.Date()
@@ -255,46 +251,61 @@ df_stats2 = df_stats %>%
 
 # Boxplot
 library(tidyr)
+library(forcats)
+
 temp = df_stats2[,c('ic50_np','ic50_mf','ic50_sf','ic50_npb')]
-names(temp) = c('NonParam', 'Monotone', 'Logistic', 'NPB')
+names(temp) = c('NPS', 'NPM', 'PL', 'NPB')
 df = gather(temp)
-p1 = ggplot(df, aes(x=key, y=value, fill=key))+
+p1 = df %>% 
+    mutate(key = factor(key,  levels = c('PL', 'NPS', 'NPM', 'NPB'))) %>% 
+    ggplot( aes(x=key, y=value, fill=key)) +
     geom_violin( ) +
-    geom_boxplot(width=0.1)+
+    geom_boxplot(width=0.1, show.legend = F)+
     scale_fill_brewer(palette="BuPu") +
     coord_cartesian(ylim =  c(0, 30))+ 
     ylab(expression(IC[50])) +
-    xlab('Model') 
+    xlab('Model') +
+    labs(fill = "Model") + 
+    ggtitle('IC50 per model')
     
 temp = df_stats[,c('mse_np','mse_mf','mse_sf','mse_npb')]
-names(temp) = c('NonParam', 'Monotone', 'Logistic','NPB')
+names(temp) = c('NPS', 'NPM', 'PL', 'NPB')
 df = gather(temp)
-p2 = ggplot(df, aes(x=key, y=value, fill=key))+
+p2 = df %>%
+  mutate(key = factor(key,  levels = c('PL', 'NPS', 'NPM', 'NPB'))) %>%
+  ggplot( aes(x=key, y=value, fill=key))+
   geom_violin( )+
-  geom_boxplot(width=0.1) +
+  geom_boxplot(width=0.1, show.legend = F)+
   scale_fill_brewer(palette="BuPu") +
   coord_cartesian(ylim =  c(0, 300))+ 
   ylab('Mean Square Error') +
-  xlab('Model') 
+  xlab('Model') +
+  labs(fill = "Model")+
+  ggtitle('MSE per model')
 
 temp = df_stats[,c('auc_np','auc_mf','auc_sf','auc_npb')]
-names(temp) = c('NonParam', 'Monotone', 'Logistic','NPB')
+names(temp) = c('NPS', 'NPM', 'PL', 'NPB')
 df = gather(temp)
-p3 = ggplot(df, aes(x=key, y=value, fill=key))+
+p3 = df %>%  
+  mutate(key = factor(key,  levels = c('PL', 'NPS', 'NPM', 'NPB'))) %>% 
+  ggplot(aes(x=key, y=value, fill=key))+
   geom_violin( )+
-  geom_boxplot(width=0.1)+
+  geom_boxplot(width=0.1, show.legend = F)+
   scale_fill_brewer(palette="BuPu") +
   coord_cartesian(ylim =  c(0, 2500))+ 
   ylab('AUC') +
-  xlab('Model') 
+  xlab('Model') +
+  labs(fill = "Model")+
+  ggtitle('AUC per model')
 
 library(gridExtra)
-p = arrangeGrob(p1, p2,p3, ncol=3, top = 'Statistics by model')
-
-title = paste('extras/boxplots_stats_',Sys.Date(),'.png', sep='')
+p = arrangeGrob(p1+theme(plot.title = element_blank()), p2+theme(plot.title = element_blank()),p3+theme(plot.title = element_blank()), ncol=3, top = 'Statistics by model')
 
 setwd("/Users/bwilliams/GoogleDrive/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS")
-ggsave(title, plot=p, device = 'png',dpi = 400, width = 6*5, height = 6, unit = 'cm')
+ggsave(paste('extras/images/boxplots_stats_p1_',Sys.Date(),'.png', sep=''), plot=p1, device = 'png',dpi = 400, width = 2*5, height = 6, unit = 'cm')
+ggsave(paste('extras/images/boxplots_stats_p2_',Sys.Date(),'.png', sep=''), plot=p2, device = 'png',dpi = 400, width = 2*5, height = 6, unit = 'cm')
+ggsave(paste('extras/images/boxplots_stats_p3_',Sys.Date(),'.png', sep=''), plot=p3, device = 'png',dpi = 400, width = 2*5, height = 6, unit = 'cm')
+ggsave(paste('extras/images/boxplots_stats_',Sys.Date(),'.png', sep=''), plot=p, device = 'png',dpi = 400, width = 6*5, height = 6, unit = 'cm')
 
 # Test differences parametric and  non parametric
 # no normality, so Wilcoxon rank

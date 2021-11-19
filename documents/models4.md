@@ -1,6 +1,6 @@
 #### Nonparametric Bayesian Model *(NPB)*
 
- Given points $(x_i, y_i)$ for $i=1..n$, with knots $K=\{k_i\}_{i=1}^J$ and parameter $\lambda>0$ we will model the relation between *x* and *y* with the Bayesian Hierarchical model
+ Given points $(x_i, y_i)$ for $i=1..n$, with knots $K=\{k_i\}_{i=1}^J$ and parameter $\lambda>0$ we will model the relation between *x* and *y* with the Bayesian hierarchical model
 
 <p align="center">
  <img src="images/fig5.png" alt="drawing" style="width:400px;"/>
@@ -13,12 +13,12 @@ $$
 
 Once the samples of the posterior distribution are obtained we drop out the first half of the observations by default. The estimate of the parameters is the mean value, following the procedure done in the previously cited paper. Once we have the mean estimates of the parameters $\hat{C}$, $\hat{a}$ , $\hat{\sigma}^2$ what we show in the plots is the function $\hat{f}(x)=\hat{C} + (1-\hat{C})\sum_{j=1}^J \hat{a}_j (1-F(x|k_j,\lambda))$. The $IC_{50}$ value is calculated from this function as
 $$
-f(IC_{50}) = \left(\max_{x_1\leq x\leq x_n}{f(x)}+\min_{x_1\leq x\leq x_n}{f(x)}\right)/2
+f(IC_{50}) = \frac{1}{2}\left(\max_{x_1\leq x\leq x_n}{f(x)}+\min_{x_1\leq x\leq x_n}{f(x)}\right),
 $$
 
 and for any $p\in (0,1)$ we have $IC_p$ obtained as the value such that
 $$
-f(IC_{p}) = \min_{x_1\leq x\leq x_n}f(x)+\left(\max_{x_1\leq x\leq x_n}{f(x)}-\min_{x_1\leq x\leq x_n}{f(x)}\right) p
+f(IC_{p}) = \min_{x_1\leq x\leq x_n}f(x)+p\left(\max_{x_1\leq x\leq x_n}{f(x)}-\min_{x_1\leq x\leq x_n}{f(x)}\right) .
 $$
 Note that the Bayesian approach would allow us to obtain for each sample of parameters an $IC$ and then have a distribution for it, from which we could take the mean, but it was decided. to obtain the $IC$ from the estimates such that the $IC_{50}$ would be marked on the curve on the plot. 
 

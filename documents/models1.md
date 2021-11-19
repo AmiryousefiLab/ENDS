@@ -1,4 +1,4 @@
-#### Nonparametric Spline *(npS)*
+ #### Nonparametric Spline *(npS)*
 
 Given a sample of doses $d_1,..,d_n$ and for each i-th dose $d_i$ *m* responses $y_{i1},..,y_{im}$, then for each dose we can obtain the dose mean $y_i=\frac{1}{m}\sum_j y_{ij}$ or dose medians​​. The simple spline that connects each of this points with a linear function is given by the piece wise linear function
 $$

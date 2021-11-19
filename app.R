@@ -42,7 +42,7 @@ ui <- fluidPage(
   
   tags$header(
     HTML('<style type="text/css">
-      p {color:#551414;}
+      p {color:#551414; text-align: justify;}
       #title{
 
         right:16px;
@@ -114,7 +114,7 @@ ui <- fluidPage(
                       br(),
                       tags$div(includeMarkdown("documents/home.md"), style = "max-width:800px;"),
              ),
-             tabPanel(strong("Fit"), br(),
+             tabPanel(strong("ENDS"), br(),
                       ####----------------------------------------------------------------
                       # Sidebar with inputs for plot parameters (to be included in tab)
                       sidebarLayout(
@@ -344,8 +344,8 @@ ui <- fluidPage(
                           br(),
                           sidebarLayout(
                             sidebarPanel( width = 4, br(),
-                                          titlePanel("Desired Drug-Patient Characteristics"),
-                                          p('Drugs, patients, treatments and samples are options from the data found in the paper',
+                                          # titlePanel("Desired Drug-Patient Characteristics"),
+                                          p('In this section we make available the drugs, patients, treatments and samples are options from the data found in the paper',
                                             tags$a(href="https://www.nature.com/articles/s41586-018-0024-3", 
                                                    strong('"Intra-tumour diversification in colorectal cancer at the single-cell level" (2018)')),
                                               ', selecting different options will 
@@ -508,9 +508,16 @@ ui <- fluidPage(
                               )
                             )
                           )
+                        ),
+                        tabPanel(
+                          strong("Supplemenatary Material"),
+                          br(),
+                          tags$div(includeMarkdown("documents/supplementary.md"), style = "max-width:800px;")
                         )
                       )
+                      
              ),
+             
              tabPanel(strong("FAQ"), br(),
                       tags$div(includeMarkdown("documents/questions.md"), style = "max-width:800px;")
              ),

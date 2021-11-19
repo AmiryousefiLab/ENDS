@@ -3,3 +3,6 @@ extras/.DS_Store
 extras/images/.DS_Store
 rsconnect/.DS_Store
 rsconnect/shinyapps.io/.DS_Store
+documents/.DS_Store
+.Rhistory
+

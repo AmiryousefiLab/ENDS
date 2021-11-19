@@ -12,7 +12,6 @@ This fit will always produce a non increasing fit, even in cases where the logis
 
 For the calculation of the effective doses at level $p\in (0,1)$ we find the unique value in the x-axis such that 
 $$
-f(IC_{p}) = (\max y + \min y) p
+f(IC_{p}) = \min_{x_1\leq x\leq x_n}f(x)+p\left(\max_{x_1\leq x\leq x_n}{f(x)}-\min_{x_1\leq x\leq x_n}{f(x)}\right).
 $$
- 
 
