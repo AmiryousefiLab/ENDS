@@ -1,6 +1,6 @@
 #### Nonparametric Bayesian Model *(NPB)*
 
-This nonparametric model connects a collection of "S" shaped functions together with a Bayesian approach. The optimal parameters are found by grid search chooses by least square error.  
+This nonparametric model connects a collection of "S" shaped functions together with a Bayesian approach. The optimal parameters are found by grid search chosen by least square error.  
 
 #### Details
 
@@ -24,6 +24,6 @@ and for any $p\in (0,1)$ we have $IC_p$ obtained as the value such that
 $$
 f(IC_{p}) = \min_{x_1\leq x\leq x_n}f(x)+p\left(\max_{x_1\leq x\leq x_n}{f(x)}-\min_{x_1\leq x\leq x_n}{f(x)}\right) .
 $$
-Note that the Bayesian approach would allow us to obtain for each sample of parameters an $IC$ and then have a distribution for it, from which we could take the mean, but it was decided. to obtain the $IC$ from the estimates such that the $IC_{50}$ would be marked on the curve on the plot. 
+Note that the Bayesian approach would allow us to obtain for each sample of parameters an $IC$ and then have a distribution for it, from which we could take the mean, but it was decided to obtain the $IC$ from the estimates such that the $IC_{50}$ would be marked on the curve on the plot. 
 
 The MH algorithm uses as priors normal distributions with parameters mannually found such that the posterior sampling rate was above 30% for all parameters. Note that we have to use a tranformation of the parameters such that they are in the correct range, for $\sigma^2$ we used an exponential function, for $C$ a logistic tranformation and for $a$ a softmax tranformation, the change of variables rule was used to update the priors such that the MH worked correctly, adding the absolute value of the determinant of the Jacobian matrix. Lastly we chose an enough chain lenghth such the the $\hat{R}$ statistic is close to one for each parameter, this indicates that several chains are converging to the same values, so the chains are long enough.

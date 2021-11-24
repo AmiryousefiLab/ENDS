@@ -7,7 +7,6 @@ source('SigmoidFit.R')
 source('MH_AMspline.R')
 
 
-
 nonparaametric_fit = function(block2){
   y_fit = block2$y_mean
   x_fit = block2$doses
