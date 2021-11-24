@@ -85,6 +85,7 @@ plot_initialize = function(block2, title=''){
 nonparaametric_fit = function(block2, dose_dependent_auc=T, p_ic = 50){
   
   m = dim(block2)[2]-2
+  if(m==0) m <- m+1
   
   y_fit = block2$y_mean
   x_fit = block2$doses
@@ -148,8 +149,15 @@ nonparaametric_fit = function(block2, dose_dependent_auc=T, p_ic = 50){
   mse = sample_meansquarederror(y, samples)
   
   # MinMax Bands
-  block2_y_max = apply( block2[, 2:(dim(block2)[2]) ],1, function(x) max(x, na.rm = T) )
-  block2_y_min = apply( block2[, 2:(dim(block2)[2]) ],1, function(x) min(x, na.rm = T) )
+  if(m==1){
+    block2_y_max =  block2$y_mean
+    block2_y_min =  block2$y_mean
+  }
+  if(m>1){
+    block2_y_max = apply( block2[, 2:(dim(block2)[2]) ],1, function(x) max(x, na.rm = T) )
+    block2_y_min = apply( block2[, 2:(dim(block2)[2]) ],1, function(x) min(x, na.rm = T) )  
+  }
+  
   # Absolute Doses
   
   # Drug Span Gradient
@@ -181,6 +189,8 @@ nonparaametric_fit = function(block2, dose_dependent_auc=T, p_ic = 50){
 plot_NPDS = function(p, block2, dose_dependent_auc=TRUE, p_ic=50){
   
   m = dim(block2)[2]-2
+  if(m==0) m <- m+1
+  
   list_nps = nonparaametric_fit(block2, dose_dependent_auc=T, p_ic )
   x_ic = list_nps$ic50
   y_ic = list_nps$y_ic
@@ -190,7 +200,6 @@ plot_NPDS = function(p, block2, dose_dependent_auc=TRUE, p_ic=50){
   angles_degrees = list_nps$spline_angles
   
   
-  m = dim(block2)[2]-2
   if(max(block2[,2:(m+1)], na.rm=T)==100){
     y_lim_right = 110
   }else{
@@ -270,15 +279,16 @@ plot_point_samples =  function(p, block2){
 # Empirical variability band
 plot_minmaxBands = function(p, block2){
   
-  block2_y_max = apply( block2[, 2:(dim(block2)[2]) ],1, function(x) max(x, na.rm = T) )
-  block2_y_min = apply( block2[, 2:(dim(block2)[2]) ],1, function(x) min(x, na.rm = T) )
+  if(m==1){
+    block2_y_max =  block2$y_mean
+    block2_y_min =  block2$y_mean
+  }
+  if(m>1){
+    block2_y_max = apply( block2[, 2:(dim(block2)[2]) ],1, function(x) max(x, na.rm = T) )
+    block2_y_min = apply( block2[, 2:(dim(block2)[2]) ],1, function(x) min(x, na.rm = T) )  
+  }
   
-  # plot(block2$doses, block2$y_mean, ylim = c(80,140), log='x')
-  # lines(block2$doses, block2_y_max)
-  # lines(block2$doses, block2_y_min)
-  # 
   # Pretty ggplot visualization
-  
   colls <<- c(colls, "MMB"="dimgrey")
   linetypes <<- c(linetypes, "solid")
   shapes <<- c(shapes, NA)

@@ -1,7 +1,5 @@
 ### Supplemantary Material
 
-- **Violin plots for the statistics**
-
 For all the data found in ["Intra-tumour diversification in colorectal cancer at the single-cell level"](https://www.nature.com/articles/s41586-018-0024-3), we have fitted each of the four models *npS*,*npM*, *npB* and *pL* to each combination of drug, patient, treatment and sample. For *npB* we followed the aformentioned procedure of fixing the knots of the function at the doses and choosing the variance parameter of the Normal CDF from a grid of values including the max-likelihood estimate, as the one which minimized the squared error, and then computed the posterior parameters with the Metropolis-Hastings algorithm for 10,000 iterations. We found the $IC_{50}$, $MSE$ and $AUC$ for each of the models which are shown in the figures below in violin plots. Note that we have included a box plot within the violin plots to showcase where the median, first and fourth quantiles are, and outliers are marked with strong dots. Outliers are those that reside outside the first quantile minus 1.5 times the interquartile range, or the third quantile plus 1.5 the interquantile range. 
 
 <img src="images/fig6.png" alt="drawing" style="width:300px;"/>

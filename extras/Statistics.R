@@ -1,11 +1,11 @@
 
-setwd('/Users/bwilliams/GoogleDrive/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS')
+# setwd('/Users/bwilliams/GoogleDrive/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS')
 source('PreliminaryFunctions.R')
 source('NPDS.R')
 source('IsotonicRegressionFit.R')
 source('SigmoidFit.R') 
 source('MH_AMspline.R')
-# Generate plot for paper
+
 
 
 nonparaametric_fit = function(block2){
@@ -243,7 +243,7 @@ colnames(df_stats) = c('id','ic50_np','mse_np','auc_np','ic50_mf','mse_mf','auc_
 # date <- Sys.Date()
 # write.csv(df_stats , paste0('data/Stats_models',date, '.csv'))
 
-df_stats = read.csv('/Users/bwilliams/GoogleDrive/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS/data/Stats_models2021-11-04.csv')
+# df_stats = read.csv('/Users/bwilliams/GoogleDrive/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS/data/Stats_models2021-11-04.csv')
 
 # Take out outlier (degenerate  fit)
 df_stats2 = df_stats %>% 
@@ -301,7 +301,7 @@ p3 = df %>%
 library(gridExtra)
 p = arrangeGrob(p1+theme(plot.title = element_blank()), p2+theme(plot.title = element_blank()),p3+theme(plot.title = element_blank()), ncol=3, top = 'Statistics by model')
 
-setwd("/Users/bwilliams/GoogleDrive/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS")
+# setwd("/Users/bwilliams/GoogleDrive/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS")
 ggsave(paste('extras/images/boxplots_stats_p1_',Sys.Date(),'.png', sep=''), plot=p1, device = 'png',dpi = 400, width = 2*5, height = 6, unit = 'cm')
 ggsave(paste('extras/images/boxplots_stats_p2_',Sys.Date(),'.png', sep=''), plot=p2, device = 'png',dpi = 400, width = 2*5, height = 6, unit = 'cm')
 ggsave(paste('extras/images/boxplots_stats_p3_',Sys.Date(),'.png', sep=''), plot=p3, device = 'png',dpi = 400, width = 2*5, height = 6, unit = 'cm')

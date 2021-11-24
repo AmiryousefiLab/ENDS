@@ -1,6 +1,10 @@
 #### Nonparametric Monotonic *(npM)*
 
- This alternative to the nonparametric spline imposes a monotone (non increasing) constrain. If the spline between two doses does not have a negative slope, then the average of the previous doses is recursively calculated until the next spline has a negative slope, which connects the average with the next data point. It is also called isotonic regression in some literature. 
+This nonparametric model is fit over the mean responses at each dose or the medians and it is analogous to *npS*, with the difference of forcing a non-increasing constrain on the connected linear functions.
+
+#### Details
+
+This alternative to the nonparametric spline imposes a monotone (non increasing) constrain. If the spline between two doses does not have a negative slope, then the average of the previous doses is recursively calculated until the next spline has a negative slope, which connects previously calculaed average with the next data point. It is also called isotonic regression in some literature. 
 
 <img src="images/fig4.png" alt="drawing" style="width:550px;"/>
 

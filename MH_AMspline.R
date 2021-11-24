@@ -229,12 +229,16 @@ find_optimal_lambda = function(x,y,K,y_max, iter = 100, lambdas = c(0.01, 0.1, 2
 
 npb_fit = function(block2, dose_dependent_auc=TRUE, p_ic=50){
   
+  m = dim(block2)[2]-2
+  if(m==0) m <- m+1
+  
+  
   q_ic = 100-p_ic
   set.seed(42)
-  y_max <-  max(as.matrix(block2[,2:5]))
+  y_max <-  max(as.matrix(block2[,2:m]))
   x <- block2$doses
-  y <- block2[,2:5]/y_max
-  y_og <-  block2[,2:5]
+  y <- block2[,2:m]/y_max
+  y_og <-  block2[,2:m]
   K <- block2$doses
   # lambda = 2 
   lambda  <- find_optimal_lambda(x,y,K,y_max, iter = 300, lambdas = c(0.01, 0.1, 2, 5))
@@ -526,5 +530,5 @@ make_plots = function(chain, K, lambda, logplotx=T, title='example'){
 # block = df_example
 # block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
 # 
-# p = plot_npbFit(block2, T, 0)
+# p = plot_npbFit(block2, T, 50)
 # p

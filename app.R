@@ -28,8 +28,7 @@ df = openxlsx::read.xlsx('data/Drug_response_S8.xlsx', sheet = 1)
 df_list  = read_excel_allsheets('data/Drug_response_S8.xlsx')
 # block = extract_dose_block(df_list, drug = '5FU', patient = 'P1', treatment = 'T1', sample = 1)
 # block2 = preprocess_data(block)
-df_example = read.csv('data/Example1.csv')
-
+# block2 = read.csv('data/Example3.csv')
 
 
 # Define UI for application that draws a histogram
@@ -314,30 +313,29 @@ ui <- fluidPage(
                           tags$div(includeMarkdown("documents/plotoptions.md"), style = "max-width:800px;"),
                         ),
                         tabPanel(
-                          strong("Model Specifications"),
+                          strong("Models"),
                           tabsetPanel(
                             tabPanel(
-                              strong('Nonparametric Spline'),
+                              strong('npS'),
                               br(),
                               tags$div(includeMarkdown("documents/models1.md"), style = "max-width:800px;")
                             ),
                             tabPanel(
-                              strong('Parametric Logistic'),
+                              strong('pL'),
                               br(),
                               tags$div(includeMarkdown("documents/models2.md"), style = "max-width:800px;")
                             ),
                             tabPanel(
-                              strong('Nonparametric Monotonic'),
+                              strong('npM'),
                               br(),
                               tags$div(includeMarkdown("documents/models3.md"), style = "max-width:800px;")
                             ),
                             tabPanel(
-                              strong('Nonparametric Bayesian'),
+                              strong('npB'),
                               br(),
                               tags$div(includeMarkdown("documents/models4.md"), style = "max-width:800px;")
                             )
                           ),
-                          
                         ),
                         tabPanel(
                           strong("Workshop"),
@@ -510,7 +508,7 @@ ui <- fluidPage(
                           )
                         ),
                         tabPanel(
-                          strong("Supplemenatary Material"),
+                          strong("Supplementary"),
                           br(),
                           tags$div(includeMarkdown("documents/supplementary.md"), style = "max-width:800px;")
                         )
@@ -1005,7 +1003,7 @@ server <- function(input, output) {
          (!check_box2 & check_box0 & !check_box1 & check_box3) |
          (check_box2 & !check_box0 & !check_box1 & check_box3)){
         block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-        p2 = plot_npbFit(block2, dosedependent_auc, p_ic, , NPB_title)
+        p2 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title)
       }
       
       if(!is.null(p2)) p2
