@@ -9,7 +9,5 @@ The plots generated can be downloaded in the **Download** tab with the **Downloa
 - The name can be specified or the default name is **ENDS**.
 - The dots per inch are applicable only to "png" of "jpeg" downloads.
 
-The parameters estimated by each of the models and the statistics derived from them can be downloaded in the **Download** tab with **Download Fit** button.
-
-The post-processed data can be downloaded in the **Download** tab with **Download Data** button.
+The parameters estimated by each of the models and the statistics derived from them can be downloaded in the **Download** tab with **Download Fit** button. Also, the post-processed data can be downloaded in the **Download** tab with **Download Data** button.
 

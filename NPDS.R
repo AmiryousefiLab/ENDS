@@ -350,6 +350,7 @@ plot_drugSpanGradient = function(p, block2){
     annotate('text',x = min(block2$doses)*1.2, y = min(block2[,2:(m+1)], na.rm=T)*1.2,
              size = 5, 
              label =  bquote( theta~'='~ .(angle_degrees_plot)^o ),
+             # label =  bquote( 'DSG='~ .(angle_degrees_plot)^o ),
              hjust=0) 
   return(p)  
 }
@@ -420,17 +421,17 @@ plot_relativedoses = function(p, block2, relative = TRUE){
   }
   
   if(relative == TRUE){
-    colls <<- c(colls, "AD"="chocolate4")
+    colls <<- c(colls, "RD"="chocolate4")
     angles_degrees_plot = c(paste0(round(angles_degrees-angle_degrees,1), intToUtf8(176)) ,'')
     p = p +  
-      ggrepel::geom_text_repel(aes(label = angles_degrees_plot, colour='AD'), show.legend = F, alpha=1) 
+      ggrepel::geom_text_repel(aes(label = angles_degrees_plot, colour='RD'), show.legend = F, alpha=1) 
     #+  annotate('text',x = min(block2$doses)*1.2, y = min(block2[,2:(m+1)])*1.1, size = 5,label =  paste0('CR=', concave_ratio), hjust=0) 
   }
   if(relative == FALSE){
-    colls <<- c(colls, "RD"="purple")
+    colls <<- c(colls, "AD"="purple")
     angles_degrees_plot = c(paste0(round(angles_degrees,1), intToUtf8(176)) ,'')
     p = p +  
-      ggrepel::geom_text_repel(aes(label = angles_degrees_plot, colour='RD'), show.legend = F, alpha=1) 
+      ggrepel::geom_text_repel(aes(label = angles_degrees_plot, colour='AD'), show.legend = F, alpha=1) 
     #+  annotate('text',x = min(block2$doses)*1.2, y = min(block2[,2:(m+1)])*1.1, size = 5,label =  paste0('CR=', concave_ratio), hjust=0) 
   }
   

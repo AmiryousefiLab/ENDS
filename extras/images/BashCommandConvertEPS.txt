@@ -1,0 +1,2 @@
+# Bash command for converting to eps in console
+convert fig7.png  eps2:fig7.eps

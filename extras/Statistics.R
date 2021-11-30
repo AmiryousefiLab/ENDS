@@ -251,51 +251,52 @@ df_stats2 = df_stats %>%
 # Boxplot
 library(tidyr)
 library(forcats)
+library(tidyverse)
 
 temp = df_stats2[,c('ic50_np','ic50_mf','ic50_sf','ic50_npb')]
-names(temp) = c('NPS', 'NPM', 'PL', 'NPB')
+names(temp) = c('npS', 'npM', 'pL', 'npB')
 df = gather(temp)
 p1 = df %>% 
-    mutate(key = factor(key,  levels = c('PL', 'NPS', 'NPM', 'NPB'))) %>% 
+    mutate(key = factor(key,  levels = c('pL', 'npS', 'npM', 'npB'))) %>% 
     ggplot( aes(x=key, y=value, fill=key)) +
     geom_violin( ) +
     geom_boxplot(width=0.1, show.legend = F)+
     scale_fill_brewer(palette="BuPu") +
     coord_cartesian(ylim =  c(0, 30))+ 
     ylab(expression(IC[50])) +
-    xlab('Model') +
     labs(fill = "Model") + 
-    ggtitle('IC50 per model')
+    theme(plot.title = element_blank(),
+          axis.title.x = element_blank())
     
 temp = df_stats[,c('mse_np','mse_mf','mse_sf','mse_npb')]
-names(temp) = c('NPS', 'NPM', 'PL', 'NPB')
+names(temp) = c('npS', 'npM', 'pL', 'npB')
 df = gather(temp)
 p2 = df %>%
-  mutate(key = factor(key,  levels = c('PL', 'NPS', 'NPM', 'NPB'))) %>%
+  mutate(key = factor(key,  levels = c('pL', 'npS', 'npM', 'npB'))) %>%
   ggplot( aes(x=key, y=value, fill=key))+
   geom_violin( )+
   geom_boxplot(width=0.1, show.legend = F)+
   scale_fill_brewer(palette="BuPu") +
   coord_cartesian(ylim =  c(0, 300))+ 
-  ylab('Mean Square Error') +
-  xlab('Model') +
+  ylab('MSE') +
   labs(fill = "Model")+
-  ggtitle('MSE per model')
+  theme(plot.title = element_blank(),
+        axis.title.x = element_blank())
 
 temp = df_stats[,c('auc_np','auc_mf','auc_sf','auc_npb')]
-names(temp) = c('NPS', 'NPM', 'PL', 'NPB')
+names(temp) = c('npS', 'npM', 'pL', 'npB')
 df = gather(temp)
 p3 = df %>%  
-  mutate(key = factor(key,  levels = c('PL', 'NPS', 'NPM', 'NPB'))) %>% 
+  mutate(key = factor(key,  levels = c('pL', 'npS', 'npM', 'npB'))) %>% 
   ggplot(aes(x=key, y=value, fill=key))+
   geom_violin( )+
   geom_boxplot(width=0.1, show.legend = F)+
   scale_fill_brewer(palette="BuPu") +
   coord_cartesian(ylim =  c(0, 2500))+ 
   ylab('AUC') +
-  xlab('Model') +
   labs(fill = "Model")+
-  ggtitle('AUC per model')
+  theme(plot.title = element_blank(),
+        axis.title.x = element_blank())
 
 library(gridExtra)
 p = arrangeGrob(p1+theme(plot.title = element_blank()), p2+theme(plot.title = element_blank()),p3+theme(plot.title = element_blank()), ncol=3, top = 'Statistics by model')
@@ -309,6 +310,63 @@ ggsave(paste('extras/images/boxplots_stats_',Sys.Date(),'.png', sep=''), plot=p,
 # Test differences parametric and  non parametric
 # no normality, so Wilcoxon rank
 shapiro.test(df_stats[,10])
+
+# Let's compute all possible combinations and fill table with them 
+
+# 3 tables of 4x4, of course only upper diagonal is interesting
+
+n1 = c('ic50_sf','ic50_np', 'ic50_mf', 'ic50_npb')
+n2 = c('mse_sf','mse_np', 'mse_mf', 'mse_npb')
+n3 =c('auc_sf','auc_np', 'auc_mf', 'auc_npb')
+
+M1 = matrix('',nrow=4,ncol=4)
+M2 = matrix('',nrow=4,ncol=4)
+M3 = matrix('',nrow=4,ncol=4)
+colnames(M1) = rownames(M1) = c('pL', 'npS', 'npM', 'npB')
+colnames(M2) = rownames(M2) = c('pL', 'npS', 'npM', 'npB')
+colnames(M3) = rownames(M3) = c('pL', 'npS', 'npM', 'npB')
+
+significant_conversion=function(w1){
+    w1_ = as.character(round(w1,2))
+    if(0<=w1 & w1<0.001){
+      w1_ = paste0(round(w1,2),'***')
+    }
+    if(0.001<=w1 & w1<0.01){
+      w1_ = paste0(round(w1,2),'**')
+    }
+    if(0.01<=w1 & w1<0.05){
+      w1_ = paste0(round(w1,2),'*')
+    }
+  return(w1_)
+}
+
+
+for(i in 1:4){
+  for(j in 1:4){
+    if(i<=j){
+      w1 = wilcox.test(df_stats[,n1[i]], df_stats[,n1[j]], alternative = "two.sided")$p.value
+      w2 = wilcox.test(df_stats[,n2[i]], df_stats[,n2[j]], alternative = "two.sided")$p.value
+      w3 = wilcox.test(df_stats[,n3[i]], df_stats[,n3[j]], alternative = "two.sided")$p.value
+        
+      w1_  = significant_conversion(w1)
+      w2_  = significant_conversion(w2)
+      w3_  = significant_conversion(w3)
+      
+      M1[i,j] = w1_
+      M2[i,j] = w2_
+      M3[i,j] = w3_
+    }
+  }
+}
+library(xtable)
+print(xtable(M1, type = "latex"))
+print(xtable(M2, type = "latex"))
+print(xtable(M3, type = "latex"))
+
+
+
+
+
 # Wilcoxon test for  Montone, Nonparametric vs Logistic
 wilcox.test(df_stats[,'ic50_np'], df_stats[,'ic50_sf'], alternative = "two.sided")
 # p-value = 0.02585

@@ -207,7 +207,7 @@ PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, ti
   if("Absolute Doses" %in% check_boxes)
     p <- plot_relativedoses(p, block2, relative=FALSE)
   if("Relative Doses" %in% check_boxes)
-    p <- plot_relativedoses(p, block2)
+    p <- plot_relativedoses(p, block2, relative = TRUE)
   p <- p + 
     scale_colour_manual(name="Labels",values=colls,
                         guide = guide_legend(
