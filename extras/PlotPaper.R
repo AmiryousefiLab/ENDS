@@ -4,8 +4,8 @@ setwd('/Users/bwilliams/GoogleDrive/UniversityOfHelsinki/Summer2021/Network Phar
 source('PreliminaryFunctions.R')
 source('NPDS.R')
 source('IsotonicRegressionFit.R')
-source('SigmoidFit.R') 
 source('MH_AMspline.R')
+source('SigmoidFit.R')
 
 plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
   
@@ -54,16 +54,16 @@ plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
   p = plot_initialize(block2)
   p = plot_point_samples(p, block2)
   
-  colls <<- c(colls, "PL"="red", "IC50PL"="red")
+  colls <<- c(colls, "pL"="red", "pL IC"="red")
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   
   
   # We can add scalecolormanual since there is no other layer  to add on top
   p <- p +  
-    geom_function(fun = m0$curve[[1]], aes(colour='PL')) + 
+    geom_function(fun = m0$curve[[1]], aes(colour='pL')) + 
     geom_hline( yintercept =  y_ic_sigm, color='red',  linetype="dotted") +
-    geom_vline(  aes(xintercept =  x_ic_sigm, colour="IC50PL"),  linetype="dotted", show.legend = F) + 
+    geom_vline(  aes(xintercept =  x_ic_sigm, colour="pL IC"),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
              hjust=1,
              vjust=1,
@@ -109,15 +109,15 @@ plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
   }
   
   
-  colls <<- c(colls, "NPM"="darkgreen", "IC50NPM"="darkgreen")
+  colls <<- c(colls, "npM"="darkgreen", "npM IC"="darkgreen")
   linetypes <<- c(linetypes, "solid","dotted")
   shapes <<- c(shapes, NA, NA)
   
   options(warn=-1)
   p = p +
-    geom_line(aes(block2$doses, block2_yf, colour ='NPM')) + 
+    geom_line(aes(block2$doses, block2_yf, colour ='npM')) + 
     geom_hline( yintercept =  y_ic_mono, color='darkgreen',  linetype="dotted") +
-    geom_vline(  aes(xintercept =  x_ic_mono, colour="IC50NPM"),  linetype="dotted", show.legend = F) + 
+    geom_vline(  aes(xintercept =  x_ic_mono, colour="npM IC"),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =min(block2$doses), 
              hjust=-0.1,
              vjust=-0.1,
@@ -149,23 +149,35 @@ plot_sigmodiMonotoneNpbFit = function(block2, dose_dependent_auc=TRUE){
     y_lim_right = max(block2[,2:(m+1)], na.rm=T)
   }
   
-  colls <<- c(colls, "NPB"="purple", "IC50NPB"="purple")
+  
+  colls <<- c(colls, "npB"="purple", "npB IC" ="purple")
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   
+  # paste0(expression('npB'~ IC[50]))
   
   # We can add scalecolormanual since there is no other layer  to add on top
+  
+  # format values with math expressions
+  # format_values = function(colls){
+  #   names_colls = names(colls)
+  #   names_colls[names_colls == "npB IC50"] = expression('npB'~ IC[50]) 
+  #   names(colls) = names_colls
+  #   return(colls)
+  # }
+  # colls_format = format_values(colls)
+  
   p <- p +  
-    
-    geom_function(fun = posterior_predictive_integrate, aes(colour='NPB')) + 
+    geom_function(fun = posterior_predictive_integrate, aes(colour='npB')) + 
     geom_hline( yintercept =  y_ic, color='purple',  linetype="dotted") +
-    geom_vline(  aes(xintercept =  x_ic, colour="IC50NPB"),  linetype="dotted", show.legend = F) + 
+    geom_vline(  aes(xintercept =  x_ic, colour="npB IC"),  linetype="dotted", show.legend = F) + 
     annotate(geom = 'text', y= y_lim_right, x =min(block2$doses), 
              hjust=-0.1,
              vjust=1,
              label = text, parse =T, size = 7, 
              color='purple') +
-    scale_colour_manual(name="Labels",values=colls,
+    scale_colour_manual(name="Labels",
+                        values=colls,
                         guide = guide_legend(
                           override.aes =
                             list(
@@ -188,8 +200,9 @@ input = list(mean_switch=T, outlier_switch=T, onehunda_switch=T, dosedep_auc=T,
                              "Min-Max Bands",
                              "Empirical Viability Bands",
                              "Drug Span Gradient",
-                             # "Absolute doses" ,
-                             "Relative Doses")
+                             "Absolute Doses" 
+                             # ,"Relative Doses"
+                             )
 )
 
 df = openxlsx::read.xlsx('data/Drug_response_S8.xlsx', sheet = 1)
@@ -213,8 +226,11 @@ p_t = plot_sigmodiMonotoneNpbFit(block2) +
 library(gridExtra)
 p_paper = gridExtra::grid.arrange(rbind(ggplotGrob(p1_mod), ggplotGrob(p_t), size = "first"))
 
-wid  = 6*4
-hei = 4*4
-ggsave('extras/ends.pdf',plot = p_paper, device = 'pdf',dpi = 400, width = wid, height = hei*2, unit = 'cm' )
+# reduction factor a
+a = 0.75
+wid  = 6*4*a
+hei = 4*4*a
+save_file = paste0('extras/ends_',Sys.Date(),'.pdf')
+ggsave(save_file, plot = p_paper, device = 'pdf',dpi = 400, width = wid, height = hei*2, unit = 'cm' )
 
 # Seems that ic50 for NPB is not correct, change it and recompute statistics and make plot

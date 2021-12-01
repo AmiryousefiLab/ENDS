@@ -1,2 +1,2 @@
 # Bash command for converting to eps in console
-convert fig7.png  eps2:fig7.eps
+convert -quality 100 -trim -density 300  ends_2021-12-01.pdf eps2:ends_ab.eps

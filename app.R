@@ -149,7 +149,7 @@ ui <- fluidPage(
                                                                  # Check box for Sigmoid Fitting
                                                                  strong('Nonparametric Spline Model'),
                                                                  prettyCheckbox(inputId = "SplinePlot",
-                                                                                label = "Nonparametric Spline",
+                                                                                label = "Nonparametric Spline (npS)",
                                                                                 value = TRUE, 
                                                                                 bigger = TRUE, 
                                                                                 shape = 'round',
@@ -180,7 +180,7 @@ ui <- fluidPage(
                                                                  strong('Extra Models'),
                                                                  # Check box for Monotone Fit
                                                                  prettyCheckbox(inputId = "MonotonePlot",
-                                                                                label = "Nonparamatric Monotonic",
+                                                                                label = "Nonparamatric Monotonic  (npM)",
                                                                                 value = FALSE, 
                                                                                 bigger = TRUE, 
                                                                                 shape = 'round',
@@ -195,7 +195,7 @@ ui <- fluidPage(
                                                                            ),
                                                                  # Check box for Sigmoid Fitting
                                                                  prettyCheckbox(inputId = "SigmoidPlot",
-                                                                                label = "Parametric Logistic",
+                                                                                label = "Parametric Logistic (pL)",
                                                                                 value = FALSE, 
                                                                                 bigger = TRUE, 
                                                                                 shape = 'round',
@@ -210,7 +210,7 @@ ui <- fluidPage(
                                                                  ),
                                                                  # Check box for NPB Fitting
                                                                  prettyCheckbox(inputId = "NPBPlot",
-                                                                                label = "Nonparametric Bayesian",
+                                                                                label = "Nonparametric Bayesian  (npB)",
                                                                                 value = FALSE, 
                                                                                 bigger = TRUE, 
                                                                                 shape = 'round',
@@ -392,7 +392,7 @@ ui <- fluidPage(
                                           tags$hr(),
                                           strong('Nonparametric Spline Model'),
                                           prettyCheckbox(inputId = "SplinePlot_",
-                                                         label = "Nonparametric Spline",
+                                                         label = "Nonparametric Spline  (npS)",
                                                          value = TRUE, 
                                                          bigger = TRUE, 
                                                          shape = 'round',
@@ -423,7 +423,7 @@ ui <- fluidPage(
                                           # Check box for Monotone Fit
                                           strong('Extra Models'),
                                           prettyCheckbox(inputId = "MonotonePlot_",
-                                                         label = "Nonparametric Monotonic",
+                                                         label = "Nonparametric Monotonic  (npM)",
                                                          value = FALSE, 
                                                          bigger = TRUE, 
                                                          shape = 'round',
@@ -438,7 +438,7 @@ ui <- fluidPage(
                                           ),
                                           # Check box for Sigmoid Fitting
                                           prettyCheckbox(inputId = "SigmoidPlot_",
-                                                         label = "Parametric Logistic",
+                                                         label = "Parametric Logistic  (pL)",
                                                          value = FALSE, 
                                                          bigger = TRUE, 
                                                          shape = 'round',
@@ -453,7 +453,7 @@ ui <- fluidPage(
                                           ),
                                           # Check box for Nonparametric Bayesian Fitting
                                           prettyCheckbox(inputId = "NPBPlot_",
-                                                         label = "Nonparametric Bayesian",
+                                                         label = "Nonparametric Bayesian  (npB)",
                                                          value = FALSE, 
                                                          bigger = TRUE, 
                                                          shape = 'round',

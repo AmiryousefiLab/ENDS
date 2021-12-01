@@ -226,12 +226,12 @@ plot_NPDS = function(p, block2, dose_dependent_auc=TRUE, p_ic=50){
   text3 = round(auc)
   text = sprintf("atop(atop(IC[%s] == %s, AUC == %s),atop( MSE == %s, \t) )",text0,text1, text3, text2)
   
-  colls <<- c(colls, "NPS"="darkblue", "IC"="red")
+  colls <<- c(colls, "npS"="darkblue", "IC"="red")
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   alphas <<- c(alphas, 1, 1)
   p <-  p + 
-    geom_line(aes(colour='NPS') , size = 0.8) +
+    geom_line(aes(colour='npS') , size = 0.8) +
     geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
     geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) +
     ggrepel::geom_text_repel(aes(label=round(y_mean) ), size=3.0, force_pull = 2, seed=42) +
@@ -278,6 +278,8 @@ plot_point_samples =  function(p, block2){
 
 # Empirical variability band
 plot_minmaxBands = function(p, block2){
+  m = dim(block2)[2]-2
+  if(m==0) m <- m+1
   
   if(m==1){
     block2_y_max =  block2$y_mean
@@ -421,17 +423,17 @@ plot_relativedoses = function(p, block2, relative = TRUE){
   }
   
   if(relative == TRUE){
-    colls <<- c(colls, "RD"="chocolate4")
+    colls <<- c(colls, "REED"="chocolate4")
     angles_degrees_plot = c(paste0(round(angles_degrees-angle_degrees,1), intToUtf8(176)) ,'')
     p = p +  
-      ggrepel::geom_text_repel(aes(label = angles_degrees_plot, colour='RD'), show.legend = F, alpha=1) 
+      ggrepel::geom_text_repel(aes(label = angles_degrees_plot, colour='RED'), show.legend = F, alpha=1) 
     #+  annotate('text',x = min(block2$doses)*1.2, y = min(block2[,2:(m+1)])*1.1, size = 5,label =  paste0('CR=', concave_ratio), hjust=0) 
   }
   if(relative == FALSE){
-    colls <<- c(colls, "AD"="purple")
+    colls <<- c(colls, "AED"="purple")
     angles_degrees_plot = c(paste0(round(angles_degrees,1), intToUtf8(176)) ,'')
     p = p +  
-      ggrepel::geom_text_repel(aes(label = angles_degrees_plot, colour='AD'), show.legend = F, alpha=1) 
+      ggrepel::geom_text_repel(aes(label = angles_degrees_plot, colour='AED'), show.legend = F, alpha=1) 
     #+  annotate('text',x = min(block2$doses)*1.2, y = min(block2[,2:(m+1)])*1.1, size = 5,label =  paste0('CR=', concave_ratio), hjust=0) 
   }
   
