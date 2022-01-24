@@ -26,10 +26,7 @@ source('MH_AMspline.R')
 
 df = openxlsx::read.xlsx('data/Drug_response_S8.xlsx', sheet = 1)
 df_list  = read_excel_allsheets('data/Drug_response_S8.xlsx')
-# block = extract_dose_block(df_list, drug = '5FU', patient = 'P1', treatment = 'T1', sample = 1)
-# block2 = preprocess_data(block)
-# block2 = read.csv('data/Example3.csv')
-
+df_example = read.csv('data/Example1.csv')
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -1268,7 +1265,7 @@ server <- function(input, output) {
       if(n>0){
         
         M = matrix(NA, nrow=n, ncol=2*4)
-        ic_name = paste('ic', p_ic, sep='')
+        ic_name = paste('ic', input$p_ic, sep='')
         if(!is.null(l1)){
           M[1:length(l1),1] = c(ic_name, 'y_ic',"mse", "auc", "drug_span_grad_angle", "spline_angles1",
                                 "spline_angles2", "spline_angles3", "spline_angles4", "spline_angles5",
