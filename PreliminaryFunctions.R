@@ -8,6 +8,9 @@ library(ggplot2)
 library(openxlsx)
 library(dplyr)
 library(ggthemes)
+library(grid)
+library(gridExtra)
+library(plyr)
 
 
 # ENDS (Epistemic nonparametric drug scoring)
@@ -218,4 +221,151 @@ PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, ti
                               alpha = alphas
                             ))) 
   return(p)
+}
+
+
+model_Statistics = function(block2, SplinePlot, SigmoidPlot, MonotonePlot, NPBPlot, dosedep_auc, p_ic, mean_switch, outlier_switch, onehunda_switch){
+  
+    l1=l2=l3=l4=NULL
+    if(SplinePlot){
+      list_nps = nonparaametric_fit(block2, dosedep_auc, p_ic)
+      l1 = unlist(list_nps)
+    }
+    if(SigmoidPlot){
+      list_pl = sigmoid_fit(block2, dosedep_auc, p_ic)
+      list_pl$logistic_curve = NULL
+      l2 = unlist(list_pl)
+      
+    }
+    if(MonotonePlot){
+      list_npm = monotone_fit(block2, dosedep_auc, p_ic)
+      l3 = unlist(list_npm)
+    }
+    if(NPBPlot){
+      block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
+      list_npb = npb_fit(block2, dosedep_auc, p_ic)
+      n = length(list_npb)
+      list_npb[[n]] = NULL
+      names(list_npb$param_est) = c('C_est', 'sigma2_est', 'a_est')
+      l4 = unlist(list_npb)
+    }
+    # DataFrame to save results
+    m = sum(!is.null(l1),!is.null(l2),!is.null(l3),!is.null(l4))
+    n = max(length(l1), length(l2), length(l3), length(l4))
+    if(n>0){
+      
+      M = matrix(NA, nrow=n, ncol=2*4)
+      ic_name = paste('ic', p_ic, sep='')
+      if(!is.null(l1)){
+        M[1:length(l1),1] = c(ic_name, 'y_ic',"mse", "auc", "drug_span_grad_angle", "spline_angles1",
+                              "spline_angles2", "spline_angles3", "spline_angles4", "spline_angles5",
+                              "spline_angles6", "spline_angles7", "spline_angles8", "spline_angles9",
+                              "spline_angles10", "spline_angles11", "spline_angles12", "spline_angles13",
+                              "spline_angles14", "spline_angles15", "spline_angles16", "spline_angles17",
+                              "spline_angles18", "spline_angles19", "spline_angles20")
+        M[1:length(l1),2] = l1
+      }
+      if(!is.null(l2)){
+        M[1:length(l2),3] = c(ic_name, 'y_ic', "mse", "auc", "coefficients.b:(Intercept)", "coefficients.c:(Intercept)",
+                              "coefficients.d:(Intercept)", "coefficients.e:(Intercept)")
+        M[1:length(l2),4] = l2
+      }
+      if(!is.null(l3)){
+        M[1:length(l3),5] = c(ic_name, 'y_ic', "mse", "auc", "y_fit1", "y_fit2", "y_fit3", "y_fit4",
+                              "y_fit5", "y_fit6", "y_fit7", "y_fit8", "y_fit9", "y_fit10",
+                              "y_fit11", "y_fit12", "y_fit13", "y_fit14", "y_fit15", "y_fit16",
+                              "y_fit17", "y_fit18", "y_fit19", "y_fit20", "y_fit21")
+        M[1:length(l3),6] = l3
+      }
+      if(!is.null(l4)){
+        M[1:length(l4),7] = c(ic_name, 'y_ic', "mse", "auc", "lambda", "C_est", "sigma2_est",
+                              "a_est1", "a_est2", "a_est3", "a_est4",
+                              "a_est5", "a_est6", "a_est7", "a_est8",
+                              "a_est9", "a_est10", "a_est11",
+                              "a_est12", "a_est13", "a_est14",
+                              "a_est15", "a_est16", "a_est17",
+                              "a_est18", "a_est19", "a_est20",
+                              "a_est21")
+        M[1:length(l4),8] = l4
+      }
+      df_stats = as.data.frame(M)
+      colnames(df_stats)=c('npS names','npS values','pL names','pL values','npM names','npM values','npB names','npB values')
+      return(df_stats)
+    }
+}
+
+
+##############################################
+# Functions for many one or more drugs-response bundles
+
+delete_na_columns = function(df){
+  df <- df[,colSums(is.na(df) | df=='' )<nrow(df)]
+  return(df)
+}
+
+create_blocks <- function(tbl){
+  drugs = tbl[,1] 
+  drugs_unique = unique(drugs)
+  drugs_n = length(drugs_unique)
+  blocks = list()
+  for(i in 1:drugs_n){
+    t_d = tbl[drugs==drugs_unique[i],]
+    t_d2 = delete_na_columns(t_d)
+    blocks[[i]] = t_d2
+  }
+  blocks[[drugs_n+1]] = drugs_unique
+  return(blocks)
+}
+
+preprocess_data_mult = function( block, mean_samples = TRUE, keep_outliers = TRUE, over_viability = TRUE, drop_values = TRUE){
+  n = length(block)-1
+  block2 = list()
+  for(i in 1:n){
+    block2[[i]] =  preprocess_data(block[[i]][,-1], mean_samples, keep_outliers , over_viability , drop_values )
+  }
+  block2[[n+1]] = block[[n+1]]
+  return(block2)
+}
+
+
+PlotOverlay_mult = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = ''){
+  # if(title=='') title = 'npS'
+  
+  n = length(block2)-1
+  drugs = block2[[n+1]]
+  plots = list()
+  for(i in 1:n){
+    plots[[i]] =  PlotOverlay(block2[[i]], check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = drugs[i])
+  }
+  # Create row of plots with given title 
+  wid  = 6*4
+  hei = 4*4 
+  p = gridExtra::grid.arrange(grobs=plots, ncol=n, nrow=1, widths = rep(wid, n), heights=hei, top=textGrob(title, gp=gpar(fontsize=15,font=8)) )
+  return(p)
+}
+
+
+blocks_to_csv = function(block2){
+  n = length(block2)-1
+  drugs = block2[[n+1]]
+  df_csv = data.frame()
+  for(i in 1:n){
+    temp = cbind(drugs[i], block2[[n-i+1]])
+    df_csv = rbind.fill(df_csv, temp)
+  }
+  names(df_csv)[1] = 'drugs'
+  return(df_csv)
+}
+
+
+model_Statistics_mult = function(block2, SplinePlot, SigmoidPlot, MonotonePlot, NPBPlot, dosedep_auc, p_ic, mean_switch, outlier_switch, onehunda_switch){
+  n = length(block2)-1
+  drugs = block2[[n+1]]
+  df_stats = data.frame()
+  for(i in 1:n){
+    df_temp = model_Statistics(block2[[i]], SplinePlot, SigmoidPlot, MonotonePlot, NPBPlot, dosedep_auc, p_ic, mean_switch, outlier_switch, onehunda_switch)
+    df_temp = cbind(drugs[i], df_temp) # add column at beginning
+    df_stats = rbind.fill(df_stats, df_temp)
+  }
+ return(df_stats) 
 }

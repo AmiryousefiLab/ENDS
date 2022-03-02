@@ -144,33 +144,20 @@ plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, title = '
   return(p)
 }
 
-# p = plot_sigmodiFit(block2, T,30)
-# p + theme(legend.box=)
-
-# Use package nplr
-# https://cran.r-project.org/web/packages/nplr/vignettes/nplr.pdf
-# Fit on averages
-# x = block2$doses
-# y = block2$y_mean
-# 
-# np1 = nplr::nplr( x, y, useLog = TRUE)
-# # np1 = nplr::nplr( x, convertToProp(y), useLog = TRUE)
-# plot(np1, showSDerr = TRUE, lwd = 4 , cex.main=1.25, main="Cell line MCF-7. Response to Irinotecan")
-# 
-# 
-#  # Fit on all available data
-# y = unlist(block2[, 1:4])
-# x = unlist(rep(block2['doses'],4))
-# np2 = nplr::nplr( x=x, y=y,useLog=TRUE)
-# plot(np2, showSDerr = TRUE, lwd = 4 , cex.main=1.25, main="Cell line MCF-7. Response to Irinotecan")
-# 
-# # Use drc traditional package
-# y = unlist(block2[, 1:4])
-# x = unlist(rep(block2['doses'],4))
-# 
-# # 4 parameter logistic fit,
-# m0 <- drm(y ~ x,  fct = LL.4())
-# doses = block2$doses
-# plot(doses, m0$curve[[1]](doses), log = 'x', type='l')
-
+###########################
+# Multiple input functions
+plot_sigmodiFit_mult = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = ''){
+  # if(title=='') title = 'pL'
+  n = length(block2)-1
+  drugs = block2[[n+1]]
+  plots = list()
+  for(i in 1:n){
+    plots[[i]] =  plot_sigmodiFit(block2[[i]], dose_dependent_auc=TRUE, p_ic=50, title = drugs[i])
+  }
+  # Create row of plots with given title 
+  wid  = 6*4
+  hei = 4*4 
+  p = gridExtra::grid.arrange(grobs=plots, ncol=n, nrow=1, widths = rep(wid, n), heights=hei, top=textGrob(title, gp=gpar(fontsize=15,font=8)) )
+  return(p)
+}
 

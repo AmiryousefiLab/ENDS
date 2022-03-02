@@ -183,4 +183,20 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '
   return(p)
 }
 
-# p = plot_monotoneFit(block2, T, 100)
+###########################
+# Multiple input functions
+plot_monotoneFit_mult = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = ''){
+  # if(title=='') title = 'npM'
+  n = length(block2)-1
+  drugs = block2[[n+1]]
+  plots = list()
+  for(i in 1:n){
+    plots[[i]] =  plot_monotoneFit(block2[[i]],  dose_dependent_auc=TRUE, p_ic=50, title = drugs[i])
+  }
+  # Create row of plots with given title 
+  wid  = 6*4
+  hei = 4*4 
+  p = gridExtra::grid.arrange(grobs=plots, ncol=n, nrow=1, widths = rep(wid, n), heights=hei, top=textGrob(title, gp=gpar(fontsize=15,font=8)) )
+  return(p)
+}
+

@@ -10,20 +10,11 @@ library(fdrtool)
 library(ggrepel)
 
 ### ------------------------------------------------------------------------------------------
-# We start implementing modeling ideas that Ali thought about
-# There's room for development if you want to change or propose some new ones
-
-# Bulat's ideas:
-# - Try the other dataset, be able to change between means and medians
-
-
-# Connects max and min of each group
-# We will only make this available as an addition to the plot
+# Implementing modeling ideas that Ali thought about
 
 
 # We can add each of parts of the functions to the plots, so we have the implementation of building on top of each graph
 # Change ylim from min to max of the samples
-# Modify each of the functions below to follow this idea, and so that everything fits on one single graph
 # p = p + new_function(p)
 
 
@@ -442,76 +433,3 @@ plot_relativedoses = function(p, block2, relative = TRUE){
   
   return(p)  
 }
-
-
-# Modify relative doses with my own idea
-# Convexity Ratio is difference between integrals of span generated line and spline fit
-
-# plot_relativedoses2 = function(p, block2){
-#   
-#   m = dim(block2)[2]-2
-#   if(m==0) m <- m+1
-#   
-#   model = lm(y_mean~doses, data = block2)
-#   angle = atan(model$coefficients[2])
-#   angle_pi = round(angle/pi,2)
-#   angle_degrees = angle*180/pi
-#   angle_degrees_plot = paste0(round(angle_degrees,1), intToUtf8(176)) 
-#   
-#   # Relative doses
-#   # cicle through points and find angles
-#   
-#   
-#   x = block2$doses
-#   y = block2$y_mean
-#   
-#   angles = atan(diff(y)/diff(x))
-#   angles_degrees = angles*180/pi
-#   angles_degrees_plot = c(paste0(round(angles_degrees,1), intToUtf8(176)) ,'')
-#   
-#   
-#   a = model$coefficients[1]
-#   b = model$coefficients[2]
-#   auc_linear = line_integral(range(x) ,c(a+b*range(x)[1],a+b*range(x)[2] ))
-#   
-#   concave_ratio = round(auc - auc_linear,1)
-#                   
-#   block2['linear_fit'] = predict(model)
-#   
-#   # Pretty ggplot visualization
-#   library(ggrepel)
-#   p = p +
-#     ggrepel::geom_text_repel(aes(label = angles_degrees_plot)) +
-#     # annotate('text',x = max(block2$doses)*0.75, y = max(block2[,2:(m+1)])*0.85, size = 5,label =  paste0('CR=', concave_ratio)) +
-#     annotate('text',x = min(block2$doses)*1.2, y = min(block2[,2:(m+1)])*1.1, size = 5,label =  paste0('CR=', concave_ratio), hjust = 0) +
-#     geom_ribbon(data=block2, aes(ymin=linear_fit, ymax=y_mean), fill="blue", alpha=0.3)
-#   return(p)  
-# }
-
-
-# setwd('/Users/bwilliams/GoogleDrive/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS')
-# source('PreliminaryFunctions.R')
-# df = openxlsx::read.xlsx('data/Drug_response_S8.xlsx', sheet = 1)
-# df_list  = read_excel_allsheets('data/Drug_response_S8.xlsx')
-# # Note that it does not exist for all parameter combinations
-# block = extract_dose_block(df_list, drug = '5FU', patient = 'P1', treatment = 'T1', sample = 1)
-# block2 = preprocess_data(block, keep_outliers = F)
-# p = plot_initialize(block2,  title ='asdf' )
-# p = plot_point_samples(p, block2)
-# p = plot_NPDS(p, block2, dose_dependent_auc = T, p_ic = 100)
-# p = plot_minmaxBands(p, block2)
-# p = plot_empiricalVariabilityBand(p, block2)
-# p = plot_drugSpanGradient(p, block2)
-# p = plot_relativedoses(p, block2)
-# p <- p +scale_colour_manual(name="Labels",values=colls,guide = guide_legend(override.aes =list(linetype = linetypes,shape = shapes,alpha = alphas)))
-# p = p + theme(legend.key.size = unit(0.2, "cm"))
-# p
-# p = plot_monotoneFit( block2)
-#
-# p = plot_sigmodiFit(block2)
-
-# Only left is to put the measurement of the drug span gradient on bottom left so that it is not on top of other
-# then add to app
-#  then work on upload and download, 
-# then build text of app in sync with MS draft
-

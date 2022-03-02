@@ -26,7 +26,7 @@ source('MH_AMspline.R')
 
 df = openxlsx::read.xlsx('data/Drug_response_S8.xlsx', sheet = 1)
 df_list  = read_excel_allsheets('data/Drug_response_S8.xlsx')
-df_example = read.csv('data/Example1.csv')
+df_example = read.csv('data/Example4.csv')
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -939,27 +939,27 @@ server <- function(input, output) {
       PL_title = t3()
       NPB_title = t4()
       
-      block = mydata()
-      
-      p1 = NULL
-      if(is.null(block)){
+      tbl = mydata()
+      p1 = NULL      
+      if(is.null(tbl)){
         showNotification('Please upload a file')
         return('')
       }
-      block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
+      block = create_blocks(tbl)
+      block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
       
       if( check_box2 ){
-        p1 = PlotOverlay(block2, check_boxes, dosedependent_auc, p_ic, NPS_title)
+        p1 = PlotOverlay_mult(block2, check_boxes, dosedependent_auc, p_ic, NPS_title)
       }
       if( (!check_box2) & check_box0){
-        p1 = plot_monotoneFit(block2, dosedependent_auc, p_ic, NPM_title)
+        p1 = plot_monotoneFit_mult(block2, dosedependent_auc, p_ic, NPM_title)
       }
       if( (!check_box2) & (!check_box0) & check_box1 ){
-        p1 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title)
+        p1 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title)
       }
       if( (!check_box2) & (!check_box0) & (!check_box1) & check_box3 ){
-        block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-        p1 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title)
+        block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
+        p1 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title)
       }
       
       p1
@@ -983,28 +983,27 @@ server <- function(input, output) {
       PL_title = t3()
       NPB_title = t4()
       
-      block = mydata()
-      
-      p2 = NULL
-      
-      if(is.null(block)){
+      tbl = mydata()
+      p2 = NULL      
+      if(is.null(tbl)){
         showNotification('Please upload a file')
         return('')
       }
-      block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
+      block = create_blocks(tbl)
+      block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
       
       
       if(check_box2 & check_box0 ){
-        p2 = plot_monotoneFit(block2, dosedependent_auc, p_ic, NPM_title)
+        p2 = plot_monotoneFit_mult(block2, dosedependent_auc, p_ic, NPM_title)
       }
       if(check_box2 & !check_box0 & check_box1){
-        p2 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title)
+        p2 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title)
       }
       if((!check_box2 & !check_box0 & check_box1 & check_box3) |
          (!check_box2 & check_box0 & !check_box1 & check_box3) |
          (check_box2 & !check_box0 & !check_box1 & check_box3)){
-        block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-        p2 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title)
+        block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
+        p2 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title)
       }
       
       if(!is.null(p2)) p2
@@ -1027,24 +1026,23 @@ server <- function(input, output) {
       PL_title = t3()
       NPB_title = t4()
       
-      block = mydata()
-      
-      p3 = NULL
-      
-      if(is.null(block)){
+      tbl = mydata()
+      p3 = NULL      
+      if(is.null(tbl)){
         showNotification('Please upload a file')
         return('')
       }
-      block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
+      block = create_blocks(tbl)
+      block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
       
       if(check_box2 & check_box0 & check_box1){
-        p3 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title)
+        p3 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title)
       }
       if( (!check_box2 & check_box0 & check_box1 & check_box3) |
           (check_box2 & !check_box0 & check_box1 & check_box3) |
           (check_box2 & check_box0 & !check_box1 & check_box3) ){
-        block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-        p3 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title)
+        block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
+        p3 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title)
       }
       p3
       
@@ -1066,18 +1064,17 @@ server <- function(input, output) {
       PL_title = t3()
       NPB_title = t4()
       
-      block = mydata()
-      
+      tbl = mydata()
       p4 = NULL
-      
-      if(is.null(block)){
+      if(is.null(tbl)){
         showNotification('Please upload a file')
         return('')
       }
-      block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
+      block = create_blocks(tbl)
+      block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
       
       if(check_box2 & check_box0 & check_box1 & check_box3){
-        p4 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title)
+        p4 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title)
       }
       showNotification("Plot generated", duration = 1, id = "message")
       p4
@@ -1104,18 +1101,23 @@ server <- function(input, output) {
         # So I don't have to generate the plots again
         # I could define the plots in reactive variables only once, p1, p2, p3 and p4
         # I might have to do this for computing the statistics and downloading them efficiently
-        block = mydata()
-        block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
-        p1 = PlotOverlay(block2, input$checkgroup1, input$dosedep_auc, input$p_ic, input$NPS_title)
-        p2 = plot_sigmodiFit(block2, input$dosedep_auc, input$p_ic, input$PL_title)
-        p3 = plot_monotoneFit(block2, input$dosedep_auc, input$p_ic, input$NPM_title)
+        tbl = mydata()
+        block = create_blocks(tbl)
+        block2 = preprocess_data_mult(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
+        n = length(block2)-1
+        drugs = block2[[n+1]]
+        
+        p1 = PlotOverlay_mult(block2, input$checkgroup1, input$dosedep_auc, input$p_ic, input$NPS_title)
+        p2 = plot_sigmodiFit_mult(block2, input$dosedep_auc, input$p_ic, input$PL_title)
+        p3 = plot_monotoneFit_mult(block2, input$dosedep_auc, input$p_ic, input$NPM_title)
         if(input$NPBPlot){
-          block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch, drop_values=F)
-          p4 = plot_npbFit(block2, input$dosedep_auc, input$p_ic, input$NPB_title)
+          block = create_blocks(tbl)
+          block2 = preprocess_data_mult(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch, drop_values=F)
+          p4 = plot_npbFit_mult(block2, input$dosedep_auc, input$p_ic, input$NPB_title)
         }
         
         
-        wid  = 6*4
+        wid  = 6*4*n
         hei = 4*4
         
         # This could be inside auxiliary function
@@ -1191,7 +1193,6 @@ server <- function(input, output) {
           
         }
         
-        
         removeNotification(id = "message")
       }
     )
@@ -1222,9 +1223,11 @@ server <- function(input, output) {
       'DataPostProcessed.csv'
     },
     content = function(con) {
-      block = mydata()
-      block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
-      write.csv(block2, con, row.names=FALSE)
+      tbl = mydata()
+      block = create_blocks(tbl)
+      block2 = preprocess_data_mult(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
+      block_csv = blocks_to_csv(block2)
+      write.csv(block_csv, con, row.names=FALSE)
     }
   )
   
@@ -1234,75 +1237,11 @@ server <- function(input, output) {
       'ModelEstimations.csv'
     },
     content = function(con) {
-      block = mydata()
-      block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
-      l1=l2=l3=l4=NULL
-      if(input$SplinePlot){
-        list_nps = nonparaametric_fit(block2, input$dosedep_auc, input$p_ic)
-        l1 = unlist(list_nps)
-      }
-      if(input$SigmoidPlot){
-        list_pl = sigmoid_fit(block2, input$dosedep_auc, input$p_ic)
-        list_pl$logistic_curve = NULL
-        l2 = unlist(list_pl)
-        
-      }
-      if(input$MonotonePlot){
-        list_npm = monotone_fit(block2, input$dosedep_auc, input$p_ic)
-        l3 = unlist(list_npm)
-      }
-      if(input$NPBPlot){
-        block2 = preprocess_data(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch, drop_values=F)
-        list_npb = npb_fit(block2, input$dosedep_auc, input$p_ic)
-        n = length(list_npb)
-        list_npb[[n]] = NULL
-        names(list_npb$param_est) = c('C_est', 'sigma2_est', 'a_est')
-        l4 = unlist(list_npb)
-      }
-      # DataFrame to save results
-      m = sum(!is.null(l1),!is.null(l2),!is.null(l3),!is.null(l4))
-      n = max(length(l1), length(l2), length(l3), length(l4))
-      if(n>0){
-        
-        M = matrix(NA, nrow=n, ncol=2*4)
-        ic_name = paste('ic', input$p_ic, sep='')
-        if(!is.null(l1)){
-          M[1:length(l1),1] = c(ic_name, 'y_ic',"mse", "auc", "drug_span_grad_angle", "spline_angles1",
-                                "spline_angles2", "spline_angles3", "spline_angles4", "spline_angles5",
-                                "spline_angles6", "spline_angles7", "spline_angles8", "spline_angles9",
-                                "spline_angles10", "spline_angles11", "spline_angles12", "spline_angles13",
-                                "spline_angles14", "spline_angles15", "spline_angles16", "spline_angles17",
-                                "spline_angles18", "spline_angles19", "spline_angles20")
-          M[1:length(l1),2] = l1
-        }
-        if(!is.null(l2)){
-          M[1:length(l2),3] = c(ic_name, 'y_ic', "mse", "auc", "coefficients.b:(Intercept)", "coefficients.c:(Intercept)",
-                                "coefficients.d:(Intercept)", "coefficients.e:(Intercept)")
-          M[1:length(l2),4] = l2
-        }
-        if(!is.null(l3)){
-          M[1:length(l3),5] = c(ic_name, 'y_ic', "mse", "auc", "y_fit1", "y_fit2", "y_fit3", "y_fit4",
-                                "y_fit5", "y_fit6", "y_fit7", "y_fit8", "y_fit9", "y_fit10",
-                                "y_fit11", "y_fit12", "y_fit13", "y_fit14", "y_fit15", "y_fit16",
-                                "y_fit17", "y_fit18", "y_fit19", "y_fit20", "y_fit21")
-          M[1:length(l3),6] = l3
-        }
-        if(!is.null(l4)){
-          M[1:length(l4),7] = c(ic_name, 'y_ic', "mse", "auc", "lambda", "C_est", "sigma2_est",
-                                "a_est1", "a_est2", "a_est3", "a_est4",
-                                "a_est5", "a_est6", "a_est7", "a_est8",
-                                "a_est9", "a_est10", "a_est11",
-                                "a_est12", "a_est13", "a_est14",
-                                "a_est15", "a_est16", "a_est17",
-                                "a_est18", "a_est19", "a_est20",
-                                "a_est21")
-          M[1:length(l4),8] = l4
-        }
-        df_stats = as.data.frame(M)
-        colnames(df_stats)=c('npS names','npS values','pL names','pL values','npM names','npM values','npB names','npB values')
-        write.csv(df_stats, con, row.names=FALSE)
-      }
-      
+      tbl = mydata()
+      block = create_blocks(tbl)
+      block2 = preprocess_data_mult(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch)
+      df_stats = model_Statistics_mult(block2, input$SplinePlot, input$SigmoidPlot, input$MonotonePlot, input$NPBPlot, input$dosedep_auc, input$p_ic, input$mean_switch, input$outlier_switch, input$onehunda_switch)
+      write.csv( df_stats, con, row.names = FALSE)
     }
   )
 }
