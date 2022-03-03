@@ -82,7 +82,7 @@ nonparaametric_fit = function(block2, dose_dependent_auc=T, p_ic = 50){
   x_fit = block2$doses
   q_ic = 100-p_ic
   
-  y_ic = min(y_fit)+ (q_ic/100)*(max(y_fit)-min(y_fit))
+  y_ic = min(y_fit)+ (q_ic/100)*(max(y_fit)-min(y_fit)) # y_ic value
   if(q_ic==0){
     x_ic = min(x_fit[y_fit==min(y_fit)])
   }
@@ -121,6 +121,17 @@ nonparaametric_fit = function(block2, dose_dependent_auc=T, p_ic = 50){
     xy_fit = ic_50_monotonefit(x_fit, y_fit, p_ic)
     x_ic_mono = xy_fit[[1]]
     y_ic_mono = xy_fit[[2]]
+    
+    if(is.nan(x_ic_mono)){ # Try again with flipped values, if monotonic fit failed
+      mono1 = fdrtool::monoreg(x = log10(block2$doses), y = -block2$y_mean, type = 'antitonic')
+      m = dim(block2)[2]-2
+      if(m==0) m <- m+1
+      y_fit = mono1$yf
+      x_fit = (block2$doses)
+      xy_fit = ic_50_monotonefit(x_fit, y_fit, p_ic)
+      x_ic_mono = xy_fit[[1]]
+      y_ic_mono = -xy_fit[[2]]
+    }
     
     # ic50 is defined as the closest one to ic_50_mono
     x_ic = x_ic_multiple[which.min(abs(x_ic_multiple-x_ic_mono))]

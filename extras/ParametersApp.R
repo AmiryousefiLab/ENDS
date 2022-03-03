@@ -17,8 +17,6 @@ input = list(mean_switch=T, outlier_switch=T, onehunda_switch=T, dosedep_auc=T,
 
 
 con = 'ModelEstimations.csv'
-
-
 # Testing out multiple input  functions
 mean_switch=T;outlier_switch=T; onehunda_switch=T; dosedependent_auc=T; p_ic=50; NPS_title='title'
 check_boxes = c("Point Samples","Spline")
@@ -142,4 +140,11 @@ check_boxes = c("Point Samples","Spline")
 # 
 # p = plot_npbFit(block2, T, 50)
 # p
+
+
+# Correct increasing fit for npS
+# tbl <- read.csv('/Users/bwilliams/GoogleDrive (syncing)/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS/data/d1.csv', header=T)
+# block = create_blocks(tbl)
+# block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
+# p1 = PlotOverlay_mult(block2, check_boxes, dosedependent_auc, p_ic, NPS_title)
 
