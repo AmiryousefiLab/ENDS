@@ -61,32 +61,42 @@ library(fdrtool)
 # 
 
 
-monotone_fit = function(block2, dose_dependent_auc=TRUE, p_ic = 50){
-  mono1 = fdrtool::monoreg(x = log10(block2$doses), y = block2$y_mean, type = 'antitonic')
+monotone_fit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, viability_switch=TRUE){
+  
   
   m = dim(block2)[2]-2
   if(m==0) m <- m+1
+  if(viability_switch==TRUE){
+    mono1 = fdrtool::monoreg(x = log10(block2$doses), y = block2$y_mean, type = 'antitonic')
+    y_fit = mono1$yf
+    x_fit = (block2$doses)
+    xy_fit = ic_50_monotonefit(x_fit, y_fit, p_ic)
+    x_ic = xy_fit[[1]]
+    y_ic = xy_fit[[2]]  
+    block2_yf = mono1$yf
+  }
+  if(viability_switch==FALSE){
+    mono1 = fdrtool::monoreg(x = log10(block2$doses), y = -block2$y_mean, type = 'antitonic')
+    y_fit = mono1$yf
+    x_fit = (block2$doses)
+    xy_fit = ic_50_monotonefit(x_fit, y_fit, p_ic)
+    x_ic = xy_fit[[1]]
+    y_ic = -xy_fit[[2]]  
+    block2_yf = -mono1$yf
+  }
   
-  y_fit = mono1$yf
-  x_fit = (block2$doses)
-  
-  
-  xy_fit = ic_50_monotonefit(x_fit, y_fit, p_ic)
-  x_ic = xy_fit[[1]]
-  y_ic = xy_fit[[2]]
-  
-  block2_yf = mono1$yf
+
   
   # Mean squared error for samples is
   samples = block2[2:(m+1)]
-  mse = sample_meansquarederror(mono1$yf, samples)
+  mse = sample_meansquarederror(block2_yf, samples)
   
   
   if(dose_dependent_auc==TRUE) 
-    auc = line_integral(x_fit,y_fit)
+    auc = line_integral(x_fit,block2_yf)
   
   if(dose_dependent_auc==FALSE) 
-    auc =  line_integral(1:length(x_fit), y_fit)
+    auc =  line_integral(1:length(x_fit), block2_yf)
   
   
   
@@ -94,17 +104,14 @@ monotone_fit = function(block2, dose_dependent_auc=TRUE, p_ic = 50){
                      y_ic = y_ic,
                      mse = mse,
                      auc = auc,
-                     y_fit = y_fit
+                     y_fit = block2_yf
   )
   
   
   return(list_stats)  
 }
 
-plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = ''){
-  
-  mono1 = fdrtool::monoreg(x = log10(block2$doses), y = block2$y_mean, type = 'antitonic')
-  
+plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE){
   # Gives exatly same fit
   # mono1 = fdrtool::monoreg(x = block2$doses, y = block2$y_mean, type = 'antitonic')
   
@@ -117,26 +124,12 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '
   m = dim(block2)[2]-2
   if(m==0) m <- m+1
   
-  y_fit = mono1$yf
-  x_fit = (block2$doses)
-  
-  
-  xy_fit = ic_50_monotonefit(x_fit, y_fit, p_ic)
-  x_ic = xy_fit[[1]]
-  y_ic = xy_fit[[2]]
-  
-  block2_yf = mono1$yf
-  
-  # Mean squared error for samples is
-  samples = block2[2:(m+1)]
-  mse = sample_meansquarederror(mono1$yf, samples)
-  
-  
-  if(dose_dependent_auc==TRUE) 
-    auc = line_integral(x_fit,y_fit)
-  
-  if(dose_dependent_auc==FALSE) 
-    auc =  line_integral(1:length(x_fit), y_fit)
+  list_npM = monotone_fit(block2, dose_dependent_auc, p_ic, viability_switch)
+  x_ic = list_npM$ic50
+  y_ic = list_npM$y_ic
+  mse = list_npM$mse
+  auc = list_npM$auc
+  y_fit = list_npM$y_fit
   
   if(title=='') title = 'Nonparametric Monotonic'
   
@@ -160,38 +153,60 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '
   shapes <<- c(shapes, NA, NA)
   
   options(warn=-1)
-  p = p +
-    ggtitle( title ) +
-    geom_line(aes(block2$doses, block2_yf, colour ='npM')) + 
-    geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
-    geom_vline(  aes(xintercept =  x_ic, colour="IC" ),  linetype="dotted", show.legend = F) + 
-    annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
-             hjust=1,
-             vjust=1,
-             label = text, parse =T, size = 7,
-             color = 'darkgreen')+
-    scale_colour_manual(name="Labels",values=colls,
-                        guide = guide_legend(
-                          override.aes =
-                            list(
-                              linetype = linetypes,
-                              shape = shapes
-                            )
-                        )
-    )
-  
+  if(viability_switch==TRUE){
+    p = p +
+      ggtitle( title ) +
+      geom_line(aes(block2$doses, y_fit, colour ='npM')) + 
+      geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
+      geom_vline(  aes(xintercept =  x_ic, colour="IC" ),  linetype="dotted", show.legend = F) + 
+      annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
+               hjust=1,
+               vjust=1,
+               label = text, parse =T, size = 7,
+               color = 'darkgreen')+
+      scale_colour_manual(name="Labels",values=colls,
+                          guide = guide_legend(
+                            override.aes =
+                              list(
+                                linetype = linetypes,
+                                shape = shapes
+                              )
+                          )
+      )
+  }
+  if(viability_switch==FALSE){
+    p = p +
+      ggtitle( title ) +
+      geom_line(aes(block2$doses, y_fit, colour ='npM')) + 
+      geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
+      geom_vline(  aes(xintercept =  x_ic, colour="IC" ),  linetype="dotted", show.legend = F) + 
+      annotate(geom = 'text', y= y_lim_right, x =min(block2$doses), 
+               hjust=0,
+               vjust=1,
+               label = text, parse =T, size = 7,
+               color = 'darkgreen')+
+      scale_colour_manual(name="Labels",values=colls,
+                          guide = guide_legend(
+                            override.aes =
+                              list(
+                                linetype = linetypes,
+                                shape = shapes
+                              )
+                          )
+      )
+  }
   return(p)
 }
 
 ###########################
 # Multiple input functions
-plot_monotoneFit_mult = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = ''){
+plot_monotoneFit_mult = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE){
   # if(title=='') title = 'npM'
   n = length(block2)-1
   drugs = block2[[n+1]]
   plots = list()
   for(i in 1:n){
-    plots[[i]] =  plot_monotoneFit(block2[[i]],  dose_dependent_auc=TRUE, p_ic=50, title = drugs[i])
+    plots[[i]] =  plot_monotoneFit(block2[[i]],  dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch)
   }
   # Create row of plots with given title 
   wid  = 6*4

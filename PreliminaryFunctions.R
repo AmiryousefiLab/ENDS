@@ -171,6 +171,8 @@ ic_50_monotonefit <- function(x_fit, y_fit, p_ic=50){
   return(list(x_ic, y_ic))
 }
 
+
+
 # Build AUC function
 line_integral <- function(x, y) {
   dx <- diff(x)
@@ -192,7 +194,7 @@ sample_meansquarederror = function(y, samples){
   mean(as.matrix((samples-y)^2) , na.rm=T)
 }
 
-PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = ''){
+PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T){
   # controler for generated plot depending on checkboxes
   p = plot_initialize(block2, title )
   if(is.null(check_boxes) ) return(p)
@@ -200,13 +202,13 @@ PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, ti
   if("Point Samples" %in% check_boxes)
     p <- plot_point_samples(p, block2)
   if("Spline" %in% check_boxes)
-    p <- plot_NPDS(p, block2, dose_dependent_auc, p_ic)
+    p <- plot_NPDS(p, block2, dose_dependent_auc, p_ic, viability_switch)
   if("Min-Max Bands" %in% check_boxes)
     p <- plot_minmaxBands(p, block2)
   if("Empirical Viability Bands" %in% check_boxes)
     p <- plot_empiricalVariabilityBand(p, block2)
   if("Drug Span Gradient" %in% check_boxes)
-    p <- plot_drugSpanGradient(p, block2)
+    p <- plot_drugSpanGradient(p, block2, viability_switch)
   if("Absolute Doses" %in% check_boxes)
     p <- plot_relativedoses(p, block2, relative=FALSE)
   if("Relative Doses" %in% check_boxes)
@@ -224,7 +226,7 @@ PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, ti
 }
 
 
-model_Statistics = function(block2, SplinePlot, SigmoidPlot, MonotonePlot, NPBPlot, dosedep_auc, p_ic, mean_switch, outlier_switch, onehunda_switch){
+model_Statistics = function(block2, SplinePlot, SigmoidPlot, MonotonePlot, NPBPlot, dosedep_auc, p_ic, mean_switch, outlier_switch, onehunda_switch, viability_switch=T){
   
     l1=l2=l3=l4=NULL
     if(SplinePlot){
@@ -232,18 +234,19 @@ model_Statistics = function(block2, SplinePlot, SigmoidPlot, MonotonePlot, NPBPl
       l1 = unlist(list_nps)
     }
     if(SigmoidPlot){
-      list_pl = sigmoid_fit(block2, dosedep_auc, p_ic)
+      list_pl = sigmoid_fit(block2, dosedep_auc, p_ic, viability_switch)
       list_pl$logistic_curve = NULL
       l2 = unlist(list_pl)
       
     }
     if(MonotonePlot){
-      list_npm = monotone_fit(block2, dosedep_auc, p_ic)
+      list_npm = monotone_fit(block2, dosedep_auc, p_ic, viability_switch)
       l3 = unlist(list_npm)
     }
     if(NPBPlot){
-      block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-      list_npb = npb_fit(block2, dosedep_auc, p_ic)
+      # Bug here, we would need to supply block for this part
+      # block2 = preprocess_data(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
+      list_npb = npb_fit(block2, dosedep_auc, p_ic, viability_switch)
       n = length(list_npb)
       list_npb[[n]] = NULL
       names(list_npb$param_est) = c('C_est', 'sigma2_est', 'a_est')
@@ -256,36 +259,26 @@ model_Statistics = function(block2, SplinePlot, SigmoidPlot, MonotonePlot, NPBPl
       
       M = matrix(NA, nrow=n, ncol=2*4)
       ic_name = paste('ic', p_ic, sep='')
+      
       if(!is.null(l1)){
-        M[1:length(l1),1] = c(ic_name, 'y_ic',"mse", "auc", "drug_span_grad_angle", "spline_angles1",
-                              "spline_angles2", "spline_angles3", "spline_angles4", "spline_angles5",
-                              "spline_angles6", "spline_angles7", "spline_angles8", "spline_angles9",
-                              "spline_angles10", "spline_angles11", "spline_angles12", "spline_angles13",
-                              "spline_angles14", "spline_angles15", "spline_angles16", "spline_angles17",
-                              "spline_angles18", "spline_angles19", "spline_angles20")
+        names(l1)[1] = ic_name
+        names(l1)[5] = 'drug_span_grad_angle'
+        M[1:length(l1),1] = names(l1)
         M[1:length(l1),2] = l1
       }
       if(!is.null(l2)){
-        M[1:length(l2),3] = c(ic_name, 'y_ic', "mse", "auc", "coefficients.b:(Intercept)", "coefficients.c:(Intercept)",
-                              "coefficients.d:(Intercept)", "coefficients.e:(Intercept)")
+        names(l2)[1] = ic_name
+        M[1:length(l2),3] = names(l2)
         M[1:length(l2),4] = l2
       }
       if(!is.null(l3)){
-        M[1:length(l3),5] = c(ic_name, 'y_ic', "mse", "auc", "y_fit1", "y_fit2", "y_fit3", "y_fit4",
-                              "y_fit5", "y_fit6", "y_fit7", "y_fit8", "y_fit9", "y_fit10",
-                              "y_fit11", "y_fit12", "y_fit13", "y_fit14", "y_fit15", "y_fit16",
-                              "y_fit17", "y_fit18", "y_fit19", "y_fit20", "y_fit21")
+        names(l3)[1] = ic_name
+        M[1:length(l3),5] = names(l3)
         M[1:length(l3),6] = l3
       }
       if(!is.null(l4)){
-        M[1:length(l4),7] = c(ic_name, 'y_ic', "mse", "auc", "lambda", "C_est", "sigma2_est",
-                              "a_est1", "a_est2", "a_est3", "a_est4",
-                              "a_est5", "a_est6", "a_est7", "a_est8",
-                              "a_est9", "a_est10", "a_est11",
-                              "a_est12", "a_est13", "a_est14",
-                              "a_est15", "a_est16", "a_est17",
-                              "a_est18", "a_est19", "a_est20",
-                              "a_est21")
+        names(l4)[1] = ic_name
+        M[1:length(l4),7] = names(l4)
         M[1:length(l4),8] = l4
       }
       df_stats = as.data.frame(M)
@@ -328,14 +321,14 @@ preprocess_data_mult = function( block, mean_samples = TRUE, keep_outliers = TRU
 }
 
 
-PlotOverlay_mult = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = ''){
+PlotOverlay_mult = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T){
   # if(title=='') title = 'npS'
   
   n = length(block2)-1
   drugs = block2[[n+1]]
   plots = list()
   for(i in 1:n){
-    plots[[i]] =  PlotOverlay(block2[[i]], check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = drugs[i])
+    plots[[i]] =  PlotOverlay(block2[[i]], check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch)
   }
   # Create row of plots with given title 
   wid  = 6*4
@@ -358,13 +351,13 @@ blocks_to_csv = function(block2){
 }
 
 
-model_Statistics_mult = function(block2, SplinePlot, SigmoidPlot, MonotonePlot, NPBPlot, dosedep_auc, p_ic, mean_switch, outlier_switch, onehunda_switch){
+model_Statistics_mult = function(block2, SplinePlot, SigmoidPlot, MonotonePlot, NPBPlot, dosedep_auc, p_ic, mean_switch, outlier_switch, onehunda_switch, viability_switch=T){
   n = length(block2)-1
   drugs = block2[[n+1]]
   df_stats = data.frame()
   for(i in 1:n){
-    df_temp = model_Statistics(block2[[i]], SplinePlot, SigmoidPlot, MonotonePlot, NPBPlot, dosedep_auc, p_ic, mean_switch, outlier_switch, onehunda_switch)
-    df_temp = cbind(drugs[i], df_temp) # add column at beginning
+    df_temp = model_Statistics(block2[[i]], SplinePlot, SigmoidPlot, MonotonePlot, NPBPlot, dosedep_auc, p_ic, mean_switch, outlier_switch, onehunda_switch, viability_switch)
+    df_temp = cbind(drug=drugs[i], df_temp) # add column at beginning
     df_stats = rbind.fill(df_stats, df_temp)
   }
  return(df_stats) 

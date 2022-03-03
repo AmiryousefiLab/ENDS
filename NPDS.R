@@ -43,7 +43,7 @@ plot_initialize = function(block2, title=''){
     ggplot(aes(doses, y_mean) )+ 
     geom_point(size=2.5, stroke=0, shape=16, color='darkblue') +
     # scale_x_log10(n.breaks=12, limits = c(min(block2[,1]), max(block2[,1]))) + 
-    scale_x_log10(breaks=as.numeric(block2$doses), limits = c(min(block2[,1]), max(block2[,1]))) + 
+    scale_x_log10(breaks=as.numeric(block2$doses), limits = c(min(block2[,1]), max(block2[,1])), ) + 
     ylim(min(block2[,2:(m+1)], na.rm=T), y_lim_right) +
     ylab('Drug response') + 
     ggtitle( title ) +
@@ -58,7 +58,7 @@ plot_initialize = function(block2, title=''){
                                       size = rel(1)),
           axis.text.x = element_text(face="plain", 
                                      color="black", 
-                                     size= 12, 
+                                     size= 10, 
                                      angle = 40,
                                      vjust=0.8),
           axis.text.y = element_text(face="plain", 
@@ -190,7 +190,7 @@ nonparaametric_fit = function(block2, dose_dependent_auc=T, p_ic = 50){
 }
 
 
-plot_NPDS = function(p, block2, dose_dependent_auc=TRUE, p_ic=50){
+plot_NPDS = function(p, block2, dose_dependent_auc=TRUE, p_ic=50, viability_switch=T){
   
   m = dim(block2)[2]-2
   if(m==0) m <- m+1
@@ -234,15 +234,29 @@ plot_NPDS = function(p, block2, dose_dependent_auc=TRUE, p_ic=50){
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   alphas <<- c(alphas, 1, 1)
-  p <-  p + 
-    geom_line(aes(colour='npS') , size = 0.8) +
-    geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
-    geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) +
-    ggrepel::geom_text_repel(aes(label=round(y_mean) ), size=3.0, force_pull = 2, seed=42) +
-    annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
-             hjust=1,
-             vjust=1,
-             label = text, parse =T, size = 7, color='blue')
+  if(viability_switch==T){
+    p <-  p + 
+      geom_line(aes(colour='npS') , size = 0.8) +
+      geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
+      geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) +
+      ggrepel::geom_text_repel(aes(label=round(y_mean) ), size=3.0, force_pull = 2, seed=42) +
+      annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
+               hjust=1,
+               vjust=1,
+               label = text, parse =T, size = 7, color='blue')  
+  }
+  if(viability_switch==F){
+    p <-  p + 
+      geom_line(aes(colour='npS') , size = 0.8) +
+      geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
+      geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) +
+      ggrepel::geom_text_repel(aes(label=round(y_mean) ), size=3.0, force_pull = 2, seed=42) +
+      annotate(geom = 'text', y= y_lim_right, x = min(block2$doses), 
+               hjust=0,
+               vjust=1,
+               label = text, parse =T, size = 7, color='blue')
+  }
+  
   
   
   return(p)
@@ -330,7 +344,7 @@ plot_empiricalVariabilityBand = function(p, block2){
 # Drug Span-Gradient
 
 # we compute linear regression fit of means and then output slope/degree_angle of the fit. Same for max and min, generate plot and output the value
-plot_drugSpanGradient = function(p, block2){
+plot_drugSpanGradient = function(p, block2, viability_switch=T){
   
   m = dim(block2)[2]-2
   if(m==0) m <- m+1
@@ -350,14 +364,26 @@ plot_drugSpanGradient = function(p, block2){
   linetypes <<- c(linetypes, "solid")
   shapes <<- c(shapes, NA)
   alphas <<- c(alphas, 1)
-  p = p + 
-    geom_smooth(aes(colour = 'DSG'), method = "lm", se = F,  linetype = 'dashed', size=0.8, formula =  y ~ x) +
-    # annotate('text',x = max(block2$doses)*0.8, y = max(block2[,2:(m+1)], na.rm=T)*0.8, size = 5, label =  bquote( theta~'='~ .(angle_degrees_plot) ) ) 
-    annotate('text',x = min(block2$doses)*1.2, y = min(block2[,2:(m+1)], na.rm=T)*1.2,
-             size = 5, 
-             label =  bquote( theta~'='~ .(angle_degrees_plot)^o ),
-             # label =  bquote( 'DSG='~ .(angle_degrees_plot)^o ),
-             hjust=0) 
+  if(viability_switch==TRUE){
+    p = p + 
+      geom_smooth(aes(colour = 'DSG'), method = "lm", se = F,  linetype = 'dashed', size=0.8, formula =  y ~ x) +
+      # annotate('text',x = max(block2$doses)*0.8, y = max(block2[,2:(m+1)], na.rm=T)*0.8, size = 5, label =  bquote( theta~'='~ .(angle_degrees_plot) ) ) 
+      annotate('text',x = min(block2$doses)*1.2, y = min(block2[,2:(m+1)], na.rm=T)*1.2,
+               size = 5, 
+               label =  bquote( theta~'='~ .(angle_degrees_plot)^o ),
+               # label =  bquote( 'DSG='~ .(angle_degrees_plot)^o ),
+               hjust=0) 
+  }
+  if(viability_switch==FALSE){
+    p = p + 
+      geom_smooth(aes(colour = 'DSG'), method = "lm", se = F,  linetype = 'dashed', size=0.8, formula =  y ~ x) +
+      annotate('text',x = max(block2$doses), y = min(block2[,2:(m+1)], na.rm=T)*1.2,
+               size = 5, 
+               label =  bquote( theta~'='~ .(angle_degrees_plot)^o ),
+               # label =  bquote( 'DSG='~ .(angle_degrees_plot)^o ),
+               hjust=1) 
+  }
+  
   return(p)  
 }
 

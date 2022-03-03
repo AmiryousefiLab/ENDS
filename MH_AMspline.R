@@ -209,15 +209,6 @@ find_optimal_lambda = function(x,y,K,y_max, iter = 100, lambdas = c(0.01, 0.1, 2
     MSEs = c(MSEs, mse)
     end = Sys.time()
     
-    # par(mfrow=c(1,1))
-    # main_plot = paste('NPB fit K=',length(K),' Lambda=',lambda, sep='')
-    # plot(x,y_og[,1], ylim = c(min(y_og)-10,max(y_og)), main=main_plot, log='x')
-    # points(x, y_og[,2])
-    # points(x,y_og[,3])
-    # points(x,y_og[,4])
-    # lines(x, rowMeans(y_og), col='blue')
-    # curve(posterior_predictive_integrate(x), col='red', from = min(x), to=max(x) ,add=T)
-    
     
   }
   print(end-start)
@@ -227,36 +218,18 @@ find_optimal_lambda = function(x,y,K,y_max, iter = 100, lambdas = c(0.01, 0.1, 2
   return(lambda_selected)
 }
 
-npb_fit = function(block2, dose_dependent_auc=TRUE, p_ic=50){
-  
-  m = dim(block2)[2]-2
-  if(m==0) m <- m+1
-  
-  
+ic_50_npb_fit = function(x, y,y_max ,K , param_est, lambda ,p_ic=50){
   q_ic = 100-p_ic
-  set.seed(42)
-  y_max <-  max(as.matrix(block2[,2:m]))
-  x <- block2$doses
-  y <- block2[,2:m]/y_max
-  y_og <-  block2[,2:m]
-  K <- block2$doses
-  # lambda = 2 
-  lambda  <- find_optimal_lambda(x,y,K,y_max, iter = 300, lambdas = c(0.01, 0.1, 2, 5))
-  # lambda= meansd_lambda(y)
-  chain = chain_NPB(x,y,K,lambda, iter = 1000)
   
-  param_est = parameter_mean_estimation(chain,K, burnin = 0.5, dropout = 10)
   C_est = param_est[[1]]
   sigma2_est = param_est[[2]]
   a_est = param_est[[3]]
-  
   
   posterior_predictive_integrate = function(x) am_spline(x, C_est, a_est, lambda, K, y_max)
   am_min = am_spline(max(x), C_est, a_est,lambda, K )
   am_max =  am_spline(min(x), C_est, a_est,lambda, K )
   y_ic_unomr = (am_min+(am_max-am_min)*(q_ic/100))
   posterior_predictive_inverse = function(x){ am_spline(x, C_est, a_est,lambda, K )- y_ic_unomr }
-  
   
   if(q_ic<1){
     x_ic = max(x)
@@ -271,20 +244,76 @@ npb_fit = function(block2, dose_dependent_auc=TRUE, p_ic=50){
     x_ic = uniroot$root
     y_ic = posterior_predictive_integrate(x_ic)
   }
+  return(list(x_ic, y_ic, posterior_predictive_inverse, posterior_predictive_integrate))
+}
+
+
+npb_fit = function(block2, dose_dependent_auc=TRUE, p_ic=50, viability_switch=TRUE){
+  
+  m = dim(block2)[2]-2
+  if(m==0) m <- m+1
+  set.seed(42)
+  
+  if(viability_switch==TRUE){ # decreasing observations
+    y_max <-  max(as.matrix(block2[,2:m]))
+    x <- block2$doses
+    y <- block2[,2:m]/y_max
+    y_og <-  block2[,2:m]
+    K <- block2$doses
+    lambda  <- find_optimal_lambda(x,y,K,y_max, iter = 300, lambdas = c(0.01, 0.1, 2, 5))
+    chain = chain_NPB(x,y,K,lambda, iter = 1000)
+    param_est = parameter_mean_estimation(chain,K, burnin = 0.5, dropout = 10)
+    xy_fit = ic_50_npb_fit(x, y,y_max ,K , param_est, lambda ,p_ic=50)
+    x_ic = xy_fit[[1]]
+    y_ic = -xy_fit[[2]]  
+    posterior_predictive_inverse = xy_fit[[3]]
+    posterior_predictive_integrate = xy_fit[[4]]
+    
+  }
+  if(viability_switch==FALSE){ # increasing observations (reflect graph on yaxis)
+    y_max <-  max(as.matrix(block2[,2:m]))
+    x <- -block2$doses
+    y <- block2[,2:m]/y_max
+    y_og <-  block2[,2:m]
+    K <- -block2$doses
+    lambda  <- find_optimal_lambda(x,y,K,y_max, iter = 300, lambdas = c(0.01, 0.1, 2, 5))
+    chain = chain_NPB(x, y,K,lambda, iter = 1000)
+    param_est = parameter_mean_estimation(chain,K, burnin = 0.5, dropout = 10)
+    
+    xy_fit = ic_50_npb_fit(x,y,y_max ,K , param_est, lambda ,p_ic=50)
+    x_ic = -xy_fit[[1]]
+    y_ic = xy_fit[[2]]  
+    posterior_predictive_inverse = function(x) xy_fit[[3]](-x)
+    posterior_predictive_integrate = function(x) xy_fit[[4]](-x)
+  }
+  
   
   mse = sample_meansquarederror(posterior_predictive_integrate(x), y_og)
   
   if(dose_dependent_auc==TRUE)
     auc = integrate(posterior_predictive_integrate, lower = min(x), max(x))$value
   if(dose_dependent_auc==FALSE){
-    x_ = 1:length(x)
-    chain = chain_NPB(x_,y,K,lambda, iter = 1000)
-    param_est = parameter_mean_estimation(chain,K, burnin = 0.5, dropout = 10)
-    C_est = param_est[[1]]
-    sigma2_est = param_est[[2]]
-    a_est = param_est[[3]]
-    posterior_predictive_integrate = function(x) am_spline(x, C_est, a_est, lambda, K, y_max)
-    auc = integrate(posterior_predictive_integrate, lower = min(x), max(x))$value
+    if(viability_switch==TRUE){
+      x_ = 1:length(x)
+      chain = chain_NPB(x_,y,K,lambda, iter = 1000)
+      param_est = parameter_mean_estimation(chain,K, burnin = 0.5, dropout = 10)
+      C_est = param_est[[1]]
+      sigma2_est = param_est[[2]]
+      a_est = param_est[[3]]
+      posterior_predictive_integrate_ddpauc = function(x) am_spline(x, C_est, a_est, lambda, K, y_max)
+      auc = integrate(posterior_predictive_integrate_ddpauc, lower = min(x), max(x))$value  
+    }
+    if(viability_switch==FALSE){
+      x_ = 1:length(x)
+      chain = chain_NPB(x_,-y,K,lambda, iter = 1000)
+      param_est = parameter_mean_estimation(chain,K, burnin = 0.5, dropout = 10)
+      C_est = param_est[[1]]
+      sigma2_est = param_est[[2]]
+      a_est = param_est[[3]]
+      posterior_predictive_integrate_ddpauc = function(x) -am_spline(x, C_est, a_est, lambda, K, y_max)
+      auc = integrate(posterior_predictive_integrate_ddpauc, lower = min(x), max(x))$value  
+    }
+    
   }
   
   list_stats = list( ic50 = x_ic, 
@@ -299,7 +328,7 @@ npb_fit = function(block2, dose_dependent_auc=TRUE, p_ic=50){
   return(list_stats)  
 }
 
-plot_npbFit = function(block2, dose_dependent_auc=TRUE, p_ic=50, title = ''){
+plot_npbFit = function(block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T){
   
   m = dim(block2)[2]-2 
   if(m==0) m <- m+1
@@ -309,7 +338,7 @@ plot_npbFit = function(block2, dose_dependent_auc=TRUE, p_ic=50, title = ''){
   # x = unlist(block2['doses'])
   
   # NPB fit over whole data
-  list_npb = npb_fit(block2, dose_dependent_auc, p_ic)
+  list_npb = npb_fit(block2, dose_dependent_auc, p_ic, viability_switch)
   
   x_ic = list_npb[['ic50']] 
   posterior_predictive_integrate = list_npb[['posterior_predictive_integrate']] 
@@ -342,25 +371,49 @@ plot_npbFit = function(block2, dose_dependent_auc=TRUE, p_ic=50, title = ''){
   
   
   # We can add scalecolormanual since there is no other layer  to add on top
-  p <- p +  
-    ggtitle( title ) +
-    geom_function(fun = posterior_predictive_integrate, aes(colour='npB')) + 
-    geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
-    geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) + 
-    annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
-             hjust=1,
-             vjust=1,
-             label = text, parse =T, size = 7, 
-             color='purple') +
-    scale_colour_manual(name="Labels",values=colls,
-                        guide = guide_legend(
-                          override.aes =
-                            list(
-                              linetype = linetypes,
-                              shape = shapes
-                            )
-                        )
-    )
+  if(viability_switch==TRUE){
+    p <- p +  
+      ggtitle( title ) +
+      geom_function(fun = posterior_predictive_integrate, aes(colour='npB')) + 
+      geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
+      geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) + 
+      annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
+               hjust=1,
+               vjust=1,
+               label = text, parse =T, size = 7, 
+               color='purple') +
+      scale_colour_manual(name="Labels",values=colls,
+                          guide = guide_legend(
+                            override.aes =
+                              list(
+                                linetype = linetypes,
+                                shape = shapes
+                              )
+                          )
+      )
+  }
+  if(viability_switch==FALSE){
+    p <- p +  
+      ggtitle( title ) +
+      geom_function(fun = posterior_predictive_integrate, aes(colour='npB')) + 
+      geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
+      geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) + 
+      annotate(geom = 'text', y= y_lim_right, x =min(block2$doses), 
+               hjust=0,
+               vjust=1,
+               label = text, parse =T, size = 7, 
+               color='purple') +
+      scale_colour_manual(name="Labels",values=colls,
+                          guide = guide_legend(
+                            override.aes =
+                              list(
+                                linetype = linetypes,
+                                shape = shapes
+                              )
+                          )
+      )
+  }
+  
   
   return(p)
 }
@@ -422,13 +475,13 @@ make_plots = function(chain, K, lambda, logplotx=T, title='example'){
 
 ###########################
 # Multiple input functions
-plot_npbFit_mult = function(block2, dose_dependent_auc=TRUE, p_ic=50, title = ''){
+plot_npbFit_mult = function(block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T){
   # if(title=='') title = 'npB'
   n = length(block2)-1
   drugs = block2[[n+1]]
   plots = list()
   for(i in 1:n){
-    plots[[i]] =  plot_npbFit(block2[[i]], dose_dependent_auc=TRUE, p_ic=50, title = drugs[i])
+    plots[[i]] =  plot_npbFit(block2[[i]], dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch)
   }
   # Create row of plots with given title 
   wid  = 6*4

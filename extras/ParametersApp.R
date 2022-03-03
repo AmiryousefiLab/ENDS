@@ -1,25 +1,25 @@
 
 # Example for shinny app
 
-block = df_example
+# block = df_example
 
 input = list(mean_switch=T, outlier_switch=T, onehunda_switch=T, dosedep_auc=T,
-             checkgroup1 = c("Point samples" ,
-                             "Spline fit" ,
+             checkgroup1 = c("Point Samples" ,
+                             "Spline" ,
                              "Min-max bands",
                              "Empirical viability bands",
-                             "Drug span gradient",
+                             "Drug Span Gradient",
                              # "Absolute doses" ,
                              "Relative doses"),
-             SplinePlot=T, SigmoidPlot=T, MonotonePlot=T, NPBPlot=F, p_ic=50,
-             NPS_title='', file_type='pdf', resolution=300
+             SplinePlot=T, SigmoidPlot=T, MonotonePlot=T, NPBPlot=T, p_ic=50,
+             NPS_title='', file_type='pdf', resolution=300, viability_switch=F
 )
 
 
 con = 'ModelEstimations.csv'
 # Testing out multiple input  functions
-mean_switch=T;outlier_switch=T; onehunda_switch=T; dosedependent_auc=T; p_ic=50; NPS_title='title'
-check_boxes = c("Point Samples","Spline")
+mean_switch=T;outlier_switch=T; onehunda_switch=T; dosedependent_auc=T; p_ic=50; NPS_title='title';viability_switch=T
+check_boxes = c("Point Samples","Spline", "Drug Span Gradient")
 
 # tbl <- read.csv('/Users/bwilliams/GoogleDrive (syncing)/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS/data/Example4.csv', header=T)
 # tbl <- read.csv('/Users/bwilliams/GoogleDrive (syncing)/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS/data/Example1.csv', header=T)
@@ -146,5 +146,8 @@ check_boxes = c("Point Samples","Spline")
 # tbl <- read.csv('/Users/bwilliams/GoogleDrive (syncing)/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS/data/d1.csv', header=T)
 # block = create_blocks(tbl)
 # block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
-# p1 = PlotOverlay_mult(block2, check_boxes, dosedependent_auc, p_ic, NPS_title)
-
+# p1 = PlotOverlay_mult(block2, check_boxes, dosedependent_auc, p_ic, NPS_title, viability_switch=F)
+# p2 = plot_monotoneFit_mult(block2, dosedependent_auc, p_ic, NPS_title, viability_switch=F)
+# p3 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, NPS_title, viability_switch=F)
+# p4 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPS_title, viability_switch=F)
+# df_stats = model_Statistics_mult(block2,SplinePlot=T, SigmoidPlot=T, MonotonePlot=T, NPBPlot=F, dosedependent_auc, p_ic,mean_switch, outlier_switch, onehunda_switch, viability_switch=F)
