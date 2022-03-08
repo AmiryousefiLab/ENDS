@@ -1,6 +1,8 @@
 It is possible to go to the **Workshop** tab and choose between different drug-patient characteristics. This dataset comes from ["Intra-tumour diversification in colorectal cancer at the single-cell level"](https://www.nature.com/articles/s41586-018-0024-3).
 
-Once the drug-response data is uploaded or the drug-patient characterics are selected, click the **Plot** button to compile the graph. Note that it is possible to select between **viability** (decreasing) and **survival** (increasing) data, the default is viability. 
+Once the drug-response data is uploaded or the drug-patient characterics are selected, click the **Plot** button to compile the graph. 
+
+-  Select between **viability** (decreasing) and **inhibition** (increasing) responses, the default is viability. 
 
 ### Output
 

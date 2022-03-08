@@ -19,8 +19,9 @@ The plot has the following options which can be selected.
 - **Relative Efficiency Degree (ARD):** Is AED$-\theta$, where $\theta$ is the angle of the DSG. If the angle is in $(0,90)$ say the dose $x_i$ is **Negative Relative Dose (NAD)** and otherwise it is a **Positive Relative Dose (PRD)**.
 - **Maximum Effective Dose (MED):** Is the dose that compared to its previous dose, exhibit the most descent in terms of the slope (measured in degrees) of the respective section of the spline function of the fit. This is, $\textrm{MED} = \min ( \textrm{AED} )$.
 
-**Data Processing**
+**Options**
 
+- **Show Statistics:** Show in corner of plot IC, AUC, MSE, by default are shown. 
 - **Median/Mean:**  Mean or the median of the responses at that dose, by default it is mean. 
 - **Outliers Kept:** If not selected then samples outside of 2 standard deviations from mean are removed from data. 
 - **Viability over 100:** If not selected then values above 100 are replaced to be 100.
