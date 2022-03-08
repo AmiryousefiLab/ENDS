@@ -126,7 +126,7 @@ ui <- fluidPage(
                                                  ),
                                                   checkboxInput('header', 'Header', TRUE),
                                                   materialSwitch(inputId = "viability_switch", 
-                                                                       label = "Survival / Viability",
+                                                                       label = "Inhibition / Viability",
                                                                        status = "danger",
                                                                        right=TRUE,
                                                                        value = TRUE ),
@@ -148,7 +148,6 @@ ui <- fluidPage(
                                          The checkboxes add layers to the spline plot. The switches control the processing of the input data. 
                                          A complete explanation of each option is found in ",strong('Help.')),
                                                  fluidRow(column(10,
-                                                                 # Check box for Sigmoid Fitting
                                                                  strong('Nonparametric Spline Model'),
                                                                  prettyCheckbox(inputId = "SplinePlot",
                                                                                 label = "Nonparametric Spline (npS)",
@@ -160,29 +159,33 @@ ui <- fluidPage(
                                                                                 animation = 'tada',
                                                                                 icon = icon('check')
                                                                  ),
-                                                                 textInput(inputId  = "NPS_title", 
-                                                                           label = NULL,
-                                                                           placeholder = 'Type title here...'
-                                                                 ),
-                                                                 prettyCheckboxGroup(
-                                                                   inputId = "checkgroup1",
-                                                                   label = "Plot Layers",
-                                                                   choices = c("Point Samples",
-                                                                               "Spline",
-                                                                               "Min-Max Bands",
-                                                                               "Empirical Viability Bands",
-                                                                               "Drug Span Gradient",
-                                                                               "Absolute Doses",
-                                                                               "Relative Doses"),
-                                                                   icon = icon("check"),
-                                                                   animation = "tada",
-                                                                   status = "info",
-                                                                   selected = c("Point Samples", "Spline")
-                                                                 ),
+                                                                 column(1),
+                                                                 column(9,
+                                                                        textInput(inputId  = "NPS_title", 
+                                                                                    label = NULL,
+                                                                                    placeholder = 'Type title here...'
+                                                                  ),
+                                                                  prettyCheckboxGroup(
+                                                                    inputId = "checkgroup1",
+                                                                    label = "Plot Layers",
+                                                                    choices = c("Point Samples",
+                                                                                "Spline",
+                                                                                "Min-Max Bands",
+                                                                                "Empirical Viability Bands",
+                                                                                "Drug Span Gradient",
+                                                                                "Absolute Doses",
+                                                                                "Relative Doses"),
+                                                                    icon = icon("check"),
+                                                                    animation = "tada",
+                                                                    status = "info",
+                                                                    selected = c("Point Samples", "Spline")
+                                                                  )
+                                                                 )
+                                                                 ,
                                                                  strong('Extra Models'),
                                                                  # Check box for Monotone Fit
                                                                  prettyCheckbox(inputId = "MonotonePlot",
-                                                                                label = "Nonparamatric Monotonic  (npM)",
+                                                                                label = "Nonparametric Monotonic  (npM)",
                                                                                 value = FALSE, 
                                                                                 bigger = TRUE, 
                                                                                 shape = 'round',
@@ -191,10 +194,13 @@ ui <- fluidPage(
                                                                                 animation = 'tada',
                                                                                 icon = icon('check')
                                                                  ),
-                                                                 textInput(inputId  = "NPM_title", 
-                                                                           label = NULL,
-                                                                           placeholder = 'Type title here...'
-                                                                           ),
+                                                                 column(1),
+                                                                 column(9,
+                                                                   textInput(inputId  = "NPM_title", 
+                                                                             label = NULL,
+                                                                             placeholder = 'Type title here...'
+                                                                             )
+                                                                 ),
                                                                  # Check box for Sigmoid Fitting
                                                                  prettyCheckbox(inputId = "SigmoidPlot",
                                                                                 label = "Parametric Logistic (pL)",
@@ -206,9 +212,12 @@ ui <- fluidPage(
                                                                                 animation = 'tada',
                                                                                 icon = icon('check')
                                                                  ),
-                                                                 textInput(inputId  = "PL_title", 
-                                                                           label = NULL,
-                                                                           placeholder = 'Type title here...'
+                                                                 column(1),
+                                                                 column(9,
+                                                                   textInput(inputId  = "PL_title", 
+                                                                             label = NULL,
+                                                                             placeholder = 'Type title here...'
+                                                                   )
                                                                  ),
                                                                  # Check box for NPB Fitting
                                                                  prettyCheckbox(inputId = "NPBPlot",
@@ -221,11 +230,19 @@ ui <- fluidPage(
                                                                                 animation = 'tada',
                                                                                 icon = icon('check')
                                                                  ),
-                                                                 textInput(inputId  = "NPB_title", 
-                                                                           label = NULL,
-                                                                           placeholder = 'Type title here...'
-                                                                 ),
-                                                                 strong('Data Processing'),
+                                                                 column(1),
+                                                                 column(9,
+                                                                   textInput(inputId  = "NPB_title", 
+                                                                             label = NULL,
+                                                                             placeholder = 'Type title here...'
+                                                                   )
+                                                                  ),
+                                                                 strong('Options'),
+                                                                 materialSwitch(inputId = "stat_info", 
+                                                                                label = "Show Statistics",
+                                                                                status = "success",
+                                                                                right=TRUE,
+                                                                                value = TRUE ),
                                                                  materialSwitch(inputId = "mean_switch", 
                                                                                 label = "Median / Mean",
                                                                                 status = "info",
@@ -392,7 +409,7 @@ ui <- fluidPage(
                                           tags$hr(),
                                           actionButton("add_graph1", "Plot", icon = icon("paint-brush")),
                                           materialSwitch(inputId = "viability_switch_", 
-                                                         label = "Survival / Viability",
+                                                         label = "Inhibition / Viability",
                                                          status = "danger",
                                                          right=TRUE,
                                                          value = TRUE ),
@@ -408,24 +425,27 @@ ui <- fluidPage(
                                                          animation = 'tada',
                                                          icon = icon('check')
                                           ),
-                                          textInput(inputId  = "NPS_title_",
-                                                    label = NULL,
-                                                    placeholder = 'Type title here...'
-                                          ),
-                                          prettyCheckboxGroup(
-                                            inputId = "checkgroup1_",
-                                            label = "Plot Layers",
-                                            choices = c("Point Samples",
-                                                        "Spline",
-                                                        "Min-Max Bands",
-                                                        "Empirical Viability Bands",
-                                                        "Drug Span Gradient",
-                                                        "Absolute Doses",
-                                                        "Relative Doses"),
-                                            icon = icon("check"),
-                                            animation = "tada",
-                                            status = "info",
-                                            selected = c("Point Samples","Spline")
+                                          column(1),
+                                          column(9,
+                                            textInput(inputId  = "NPS_title_",
+                                                      label = NULL,
+                                                      placeholder = 'Type title here...'
+                                            ),
+                                            prettyCheckboxGroup(
+                                              inputId = "checkgroup1_",
+                                              label = "Plot Layers",
+                                              choices = c("Point Samples",
+                                                          "Spline",
+                                                          "Min-Max Bands",
+                                                          "Empirical Viability Bands",
+                                                          "Drug Span Gradient",
+                                                          "Absolute Doses",
+                                                          "Relative Doses"),
+                                              icon = icon("check"),
+                                              animation = "tada",
+                                              status = "info",
+                                              selected = c("Point Samples","Spline")
+                                            )
                                           ),
                                           # Check box for Monotone Fit
                                           strong('Extra Models'),
@@ -439,9 +459,12 @@ ui <- fluidPage(
                                                          animation = 'tada',
                                                          icon = icon('check')
                                           ),
-                                          textInput(inputId  = "NPM_title_",
-                                                    label = NULL,
-                                                    placeholder = 'Type title here...'
+                                          column(1),
+                                          column(9,
+                                            textInput(inputId  = "NPM_title_",
+                                                      label = NULL,
+                                                      placeholder = 'Type title here...'
+                                            )
                                           ),
                                           # Check box for Sigmoid Fitting
                                           prettyCheckbox(inputId = "SigmoidPlot_",
@@ -454,9 +477,12 @@ ui <- fluidPage(
                                                          animation = 'tada',
                                                          icon = icon('check')
                                           ),
-                                          textInput(inputId  = "PL_title_",
-                                                    label = NULL,
-                                                    placeholder = 'Type title here...'
+                                          column(1),
+                                          column(9,
+                                            textInput(inputId  = "PL_title_",
+                                                      label = NULL,
+                                                      placeholder = 'Type title here...'
+                                            )
                                           ),
                                           # Check box for Nonparametric Bayesian Fitting
                                           prettyCheckbox(inputId = "NPBPlot_",
@@ -469,11 +495,19 @@ ui <- fluidPage(
                                                          animation = 'tada',
                                                          icon = icon('check')
                                           ),
-                                          textInput(inputId  = "NPB_title_",
-                                                    label = NULL,
-                                                    placeholder = 'Type title here...'
+                                          column(1),
+                                          column(9,
+                                            textInput(inputId  = "NPB_title_",
+                                                      label = NULL,
+                                                      placeholder = 'Type title here...'
+                                            )
                                           ),
-                                          strong('Data Processing'),
+                                          strong('Options'),
+                                          materialSwitch(inputId = "stat_info_", 
+                                                         label = "Show Statistics",
+                                                         status = "success",
+                                                         right=TRUE,
+                                                         value = TRUE ),
                                           materialSwitch(inputId = "mean_switch_", 
                                                          label = "Median / Mean",
                                                          status = "info",
@@ -494,6 +528,7 @@ ui <- fluidPage(
                                                          status = "danger",
                                                          right=TRUE,
                                                          value = TRUE ),
+                                          
                                           sliderInput(inputId = "p_ic_",
                                                       label = "Select value for IC:",
                                                       min = 0,
@@ -556,6 +591,7 @@ server <- function(input, output) {
   t3 = reactive(input$PL_title)
   t4 = reactive(input$NPB_title)
   vs = reactive(input$viability_switch)
+  si = reactive(input$stat_info)
   
   cb0_ = reactive(input$MonotonePlot_)
   cb1_ = reactive(input$SigmoidPlot_)
@@ -572,6 +608,7 @@ server <- function(input, output) {
   t3_ = reactive(input$PL_title_)
   t4_ = reactive(input$NPB_title_)
   vs_ = reactive(input$viability_switch_)
+  si_ = reactive(input$stat_info_)
   
   d1 = reactive(input$Drug)
   p1 = reactive(input$Patient)
@@ -625,6 +662,7 @@ server <- function(input, output) {
       PL_title = t3_()
       NPB_title = t4_()
       viability_switch = vs_()
+      stat_info = si_()
       
       p1 = NULL
       if( check_box2 ){
@@ -637,7 +675,7 @@ server <- function(input, output) {
         }
         block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch )
     
-        p1 = PlotOverlay(block2, check_boxes, dosedependent_auc, p_ic, NPS_title, viability_switch)
+        p1 = PlotOverlay(block2, check_boxes, dosedependent_auc, p_ic, NPS_title, viability_switch, stat_info)
       }
       if( (!check_box2) & check_box0){
         block = extract_dose_block(df_list, drug, patient, treatment, samp)
@@ -646,7 +684,7 @@ server <- function(input, output) {
           showNotification('Please select other drug-patient characteristics')
           return('')
         }
-        p1 = plot_monotoneFit(block2, dosedependent_auc, p_ic, NPM_title, viability_switch )
+        p1 = plot_monotoneFit(block2, dosedependent_auc, p_ic, NPM_title, viability_switch, stat_info)
       }
       if( (!check_box2) & (!check_box0) & check_box1 ){
         block = extract_dose_block(df_list, drug, patient, treatment, samp)
@@ -655,7 +693,7 @@ server <- function(input, output) {
           showNotification('Please select other drug-patient characteristics')
           return('')
         }
-        p1 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title, viability_switch)
+        p1 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title, viability_switch, stat_info)
       }
       if( (!check_box2) & (!check_box0) & (!check_box1) &  check_box3 ){
         block = extract_dose_block(df_list, drug, patient, treatment, samp)
@@ -664,7 +702,7 @@ server <- function(input, output) {
           showNotification('Please select other drug-patient characteristics')
           return('')
         }
-        p1 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title, viability_switch)
+        p1 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info)
       }
       
       p1
@@ -692,6 +730,7 @@ server <- function(input, output) {
       PL_title = t3_()
       NPB_title = t4_()
       viability_switch = vs_()
+      stat_info = si_()
       
       p2 = NULL
       
@@ -702,7 +741,7 @@ server <- function(input, output) {
           showNotification('Please select other drug-patient characteristics')
           return('')
         }
-        p2 = plot_monotoneFit(block2, dosedependent_auc, p_ic, NPM_title, viability_switch )
+        p2 = plot_monotoneFit(block2, dosedependent_auc, p_ic, NPM_title, viability_switch, stat_info )
       }
       if( (check_box2 & !check_box0 & check_box1) |
           (!check_box2 & check_box0 & check_box1)
@@ -713,7 +752,7 @@ server <- function(input, output) {
           showNotification('Please select other drug-patient characteristics')
           return('')
         }
-        p2 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title, viability_switch)
+        p2 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title, viability_switch, stat_info)
       }
       if((!check_box2 & !check_box0 & check_box1 & check_box3) |
          (!check_box2 & check_box0 & !check_box1 & check_box3) |
@@ -724,7 +763,7 @@ server <- function(input, output) {
           showNotification('Please select other drug-patient characteristics')
           return('')
         }
-        p2 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title, viability_switch)
+        p2 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info)
       }
       
       if(!is.null(p2)) p2
@@ -751,6 +790,7 @@ server <- function(input, output) {
       PL_title = t3_()
       NPB_title = t4_()
       viability_switch = vs_()
+      stat_info = si_()
       
       p3 = NULL
       
@@ -761,7 +801,7 @@ server <- function(input, output) {
           return('')
         }
         block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch )
-        p3 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title, viability_switch)
+        p3 = plot_sigmodiFit(block2, dosedependent_auc, p_ic, PL_title, viability_switch, stat_info)
       }
       
       if( (!check_box2 & check_box0 & check_box1 & check_box3) |
@@ -774,7 +814,7 @@ server <- function(input, output) {
           return('')
         }
         block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch, drop_values=F )
-        p3 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title, viability_switch)
+        p3 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info)
       }
       
       if(!is.null(p3)) p3
@@ -802,6 +842,7 @@ server <- function(input, output) {
       PL_title = t3_()
       NPB_title = t4_()
       viability_switch = vs_()
+      stat_info = si_()
       
       p4=NULL
       if(check_box0 & check_box1 & check_box2 & check_box3){
@@ -812,7 +853,7 @@ server <- function(input, output) {
         }
         block2 = preprocess_data(block, mean_switch, outlier_switch, onehunda_switch, drop_values=F )
         
-        p4 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title, viability_switch)
+        p4 = plot_npbFit(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info)
         p4
       }
       showNotification("Plot generated", duration = 1, id = "message")
@@ -954,6 +995,7 @@ server <- function(input, output) {
       PL_title = t3()
       NPB_title = t4()
       viability_switch = vs()
+      stat_info = si()
       
       tbl = mydata()
       p1 = NULL      
@@ -965,17 +1007,17 @@ server <- function(input, output) {
       block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
       
       if( check_box2 ){
-        p1 = PlotOverlay_mult(block2, check_boxes, dosedependent_auc, p_ic, NPS_title, viability_switch)
+        p1 = PlotOverlay_mult(block2, check_boxes, dosedependent_auc, p_ic, NPS_title, viability_switch, stat_info)
       }
       if( (!check_box2) & check_box0){
-        p1 = plot_monotoneFit_mult(block2, dosedependent_auc, p_ic, NPM_title, viability_switch)
+        p1 = plot_monotoneFit_mult(block2, dosedependent_auc, p_ic, NPM_title, viability_switch, stat_info)
       }
       if( (!check_box2) & (!check_box0) & check_box1 ){
-        p1 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title, viability_switch)
+        p1 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title, viability_switch, stat_info)
       }
       if( (!check_box2) & (!check_box0) & (!check_box1) & check_box3 ){
         block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-        p1 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch)
+        p1 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info)
       }
       
       p1
@@ -999,6 +1041,7 @@ server <- function(input, output) {
       PL_title = t3()
       NPB_title = t4()
       viability_switch = vs()
+      stat_info = si()
       
       tbl = mydata()
       p2 = NULL      
@@ -1011,16 +1054,16 @@ server <- function(input, output) {
       
       
       if(check_box2 & check_box0 ){
-        p2 = plot_monotoneFit_mult(block2, dosedependent_auc, p_ic, NPM_title, viability_switch)
+        p2 = plot_monotoneFit_mult(block2, dosedependent_auc, p_ic, NPM_title, viability_switch, stat_info)
       }
       if(check_box2 & !check_box0 & check_box1){
-        p2 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title, viability_switch)
+        p2 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title, viability_switch, stat_info)
       }
       if((!check_box2 & !check_box0 & check_box1 & check_box3) |
          (!check_box2 & check_box0 & !check_box1 & check_box3) |
          (check_box2 & !check_box0 & !check_box1 & check_box3)){
         block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-        p2 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch)
+        p2 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info)
       }
       
       if(!is.null(p2)) p2
@@ -1043,6 +1086,7 @@ server <- function(input, output) {
       PL_title = t3()
       NPB_title = t4()
       viability_switch = vs()
+      stat_info = si()
       
       tbl = mydata()
       p3 = NULL      
@@ -1054,13 +1098,13 @@ server <- function(input, output) {
       block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
       
       if(check_box2 & check_box0 & check_box1){
-        p3 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title, viability_switch)
+        p3 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title, viability_switch, stat_info)
       }
       if( (!check_box2 & check_box0 & check_box1 & check_box3) |
           (check_box2 & !check_box0 & check_box1 & check_box3) |
           (check_box2 & check_box0 & !check_box1 & check_box3) ){
         block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-        p3 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch)
+        p3 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info)
       }
       p3
       
@@ -1082,6 +1126,7 @@ server <- function(input, output) {
       PL_title = t3()
       NPB_title = t4()
       viability_switch = vs()
+      stat_info = si()
       
       tbl = mydata()
       p4 = NULL
@@ -1093,7 +1138,7 @@ server <- function(input, output) {
       block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
       
       if(check_box2 & check_box0 & check_box1 & check_box3){
-        p4 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch)
+        p4 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info)
       }
       showNotification("Plot generated", duration = 1, id = "message")
       p4
@@ -1126,13 +1171,13 @@ server <- function(input, output) {
         n = length(block2)-1
         drugs = block2[[n+1]]
         
-        p1 = PlotOverlay_mult(block2, input$checkgroup1, input$dosedep_auc, input$p_ic, input$NPS_title, input$viability_switch)
-        p2 = plot_sigmodiFit_mult(block2, input$dosedep_auc, input$p_ic, input$PL_title, input$viability_switch)
-        p3 = plot_monotoneFit_mult(block2, input$dosedep_auc, input$p_ic, input$NPM_title, input$viability_switch)
+        p1 = PlotOverlay_mult(block2, input$checkgroup1, input$dosedep_auc, input$p_ic, input$NPS_title, input$viability_switch, input$stat_info)
+        p2 = plot_sigmodiFit_mult(block2, input$dosedep_auc, input$p_ic, input$PL_title, input$viability_switch, input$stat_info)
+        p3 = plot_monotoneFit_mult(block2, input$dosedep_auc, input$p_ic, input$NPM_title, input$viability_switch, input$stat_info)
         if(input$NPBPlot){
           block = create_blocks(tbl)
           block2 = preprocess_data_mult(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch, drop_values=F)
-          p4 = plot_npbFit_mult(block2, input$dosedep_auc, input$p_ic, input$NPB_title, input$viability_switch)
+          p4 = plot_npbFit_mult(block2, input$dosedep_auc, input$p_ic, input$NPB_title, input$viability_switch, input$stat_info)
         }
         
         

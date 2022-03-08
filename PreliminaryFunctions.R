@@ -194,7 +194,7 @@ sample_meansquarederror = function(y, samples){
   mean(as.matrix((samples-y)^2) , na.rm=T)
 }
 
-PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T){
+PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T, stat_info=T){
   # controler for generated plot depending on checkboxes
   p = plot_initialize(block2, title )
   if(is.null(check_boxes) ) return(p)
@@ -202,13 +202,13 @@ PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, ti
   if("Point Samples" %in% check_boxes)
     p <- plot_point_samples(p, block2)
   if("Spline" %in% check_boxes)
-    p <- plot_NPDS(p, block2, dose_dependent_auc, p_ic, viability_switch)
+    p <- plot_NPDS(p, block2, dose_dependent_auc, p_ic, viability_switch, stat_info)
   if("Min-Max Bands" %in% check_boxes)
     p <- plot_minmaxBands(p, block2)
   if("Empirical Viability Bands" %in% check_boxes)
     p <- plot_empiricalVariabilityBand(p, block2)
   if("Drug Span Gradient" %in% check_boxes)
-    p <- plot_drugSpanGradient(p, block2, viability_switch)
+    p <- plot_drugSpanGradient(p, block2, viability_switch, stat_info)
   if("Absolute Doses" %in% check_boxes)
     p <- plot_relativedoses(p, block2, relative=FALSE)
   if("Relative Doses" %in% check_boxes)
@@ -310,7 +310,7 @@ create_blocks <- function(tbl){
   return(blocks)
 }
 
-preprocess_data_mult = function( block, mean_samples = TRUE, keep_outliers = TRUE, over_viability = TRUE, drop_values = TRUE){
+preprocess_data_mult = function( block, mean_samples = TRUE, keep_outliers = TRUE, over_viability = TRUE, drop_values = TRUE, stat_info=T){
   n = length(block)-1
   block2 = list()
   for(i in 1:n){
@@ -321,14 +321,14 @@ preprocess_data_mult = function( block, mean_samples = TRUE, keep_outliers = TRU
 }
 
 
-PlotOverlay_mult = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T){
+PlotOverlay_mult = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T, stat_info=T){
   # if(title=='') title = 'npS'
   
   n = length(block2)-1
   drugs = block2[[n+1]]
   plots = list()
   for(i in 1:n){
-    plots[[i]] =  PlotOverlay(block2[[i]], check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch)
+    plots[[i]] =  PlotOverlay(block2[[i]], check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch, stat_info)
   }
   # Create row of plots with given title 
   wid  = 6*4

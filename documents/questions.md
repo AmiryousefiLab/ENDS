@@ -10,6 +10,18 @@
 
 <br/>
 
+#### Q: *Can multiple drugs-response pairs be uploaded simmuntaniously?*
+
+**A:** Multiple drugs-responses not necesarilly of the same dimensions are accepted by the app and plotted side by side, please mind saving an identifier for each drug as the first column of the *csv* file.
+
+<br/>
+
+#### Q: *Will the model work on inhibition data (non-decreasing responses) ?*
+
+**A:** Please after uploading the data change the *Inhibition/Viability* switch to "Off"
+
+<br/>
+
 #### Q: *How can I incresae the resolution of my plot?*
 
 **A:** You can change the type of the plots to *.png* or *.jpg* and increase the resolution of the download to a higher number.

@@ -328,7 +328,7 @@ npb_fit = function(block2, dose_dependent_auc=TRUE, p_ic=50, viability_switch=TR
   return(list_stats)  
 }
 
-plot_npbFit = function(block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T){
+plot_npbFit = function(block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T, stat_info=T){
   
   m = dim(block2)[2]-2 
   if(m==0) m <- m+1
@@ -369,51 +369,36 @@ plot_npbFit = function(block2, dose_dependent_auc=TRUE, p_ic=50, title = '', via
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   
+  p <- p +  
+    ggtitle( title ) +
+    geom_function(fun = posterior_predictive_integrate, aes(colour='npB')) + 
+    geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
+    geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F)
   
   # We can add scalecolormanual since there is no other layer  to add on top
-  if(viability_switch==TRUE){
-    p <- p +  
-      ggtitle( title ) +
-      geom_function(fun = posterior_predictive_integrate, aes(colour='npB')) + 
-      geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
-      geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) + 
-      annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
+  if(viability_switch==TRUE & stat_info==T){
+    p = p + annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
                hjust=1,
                vjust=1,
                label = text, parse =T, size = 7, 
-               color='purple') +
-      scale_colour_manual(name="Labels",values=colls,
-                          guide = guide_legend(
-                            override.aes =
-                              list(
-                                linetype = linetypes,
-                                shape = shapes
-                              )
-                          )
-      )
+               color='purple') 
   }
-  if(viability_switch==FALSE){
-    p <- p +  
-      ggtitle( title ) +
-      geom_function(fun = posterior_predictive_integrate, aes(colour='npB')) + 
-      geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
-      geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) + 
-      annotate(geom = 'text', y= y_lim_right, x =min(block2$doses), 
+  if(viability_switch==FALSE & stat_info==T){
+    p <- p + annotate(geom = 'text', y= y_lim_right, x =min(block2$doses), 
                hjust=0,
                vjust=1,
                label = text, parse =T, size = 7, 
-               color='purple') +
-      scale_colour_manual(name="Labels",values=colls,
-                          guide = guide_legend(
-                            override.aes =
-                              list(
-                                linetype = linetypes,
-                                shape = shapes
-                              )
-                          )
-      )
+               color='purple') 
   }
-  
+  p = p + scale_colour_manual(name="Labels",values=colls,
+                              guide = guide_legend(
+                                override.aes =
+                                  list(
+                                    linetype = linetypes,
+                                    shape = shapes
+                                  )
+                              )
+  )
   
   return(p)
 }
@@ -475,13 +460,13 @@ make_plots = function(chain, K, lambda, logplotx=T, title='example'){
 
 ###########################
 # Multiple input functions
-plot_npbFit_mult = function(block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T){
+plot_npbFit_mult = function(block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T, stat_info=T){
   # if(title=='') title = 'npB'
   n = length(block2)-1
   drugs = block2[[n+1]]
   plots = list()
   for(i in 1:n){
-    plots[[i]] =  plot_npbFit(block2[[i]], dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch)
+    plots[[i]] =  plot_npbFit(block2[[i]], dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch, stat_info)
   }
   # Create row of plots with given title 
   wid  = 6*4

@@ -111,7 +111,7 @@ monotone_fit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, viability_sw
   return(list_stats)  
 }
 
-plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE){
+plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE, stat_info=T){
   # Gives exatly same fit
   # mono1 = fdrtool::monoreg(x = block2$doses, y = block2$y_mean, type = 'antitonic')
   
@@ -153,60 +153,48 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '
   shapes <<- c(shapes, NA, NA)
   
   options(warn=-1)
-  if(viability_switch==TRUE){
-    p = p +
-      ggtitle( title ) +
-      geom_line(aes(block2$doses, y_fit, colour ='npM')) + 
-      geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
-      geom_vline(  aes(xintercept =  x_ic, colour="IC" ),  linetype="dotted", show.legend = F) + 
-      annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
+  p = p +
+    ggtitle( title ) +
+    geom_line(aes(block2$doses, y_fit, colour ='npM')) + 
+    geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
+    geom_vline(  aes(xintercept =  x_ic, colour="IC" ),  linetype="dotted", show.legend = F)
+  
+  if(viability_switch==TRUE & stat_info==T){
+     p = p + annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
                hjust=1,
                vjust=1,
                label = text, parse =T, size = 7,
-               color = 'darkgreen')+
-      scale_colour_manual(name="Labels",values=colls,
-                          guide = guide_legend(
-                            override.aes =
-                              list(
-                                linetype = linetypes,
-                                shape = shapes
-                              )
-                          )
-      )
+               color = 'darkgreen')
   }
-  if(viability_switch==FALSE){
-    p = p +
-      ggtitle( title ) +
-      geom_line(aes(block2$doses, y_fit, colour ='npM')) + 
-      geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
-      geom_vline(  aes(xintercept =  x_ic, colour="IC" ),  linetype="dotted", show.legend = F) + 
-      annotate(geom = 'text', y= y_lim_right, x =min(block2$doses), 
+  if(viability_switch==FALSE & stat_info==T){
+    p = p + annotate(geom = 'text', y= y_lim_right, x =min(block2$doses), 
                hjust=0,
                vjust=1,
                label = text, parse =T, size = 7,
-               color = 'darkgreen')+
-      scale_colour_manual(name="Labels",values=colls,
-                          guide = guide_legend(
-                            override.aes =
-                              list(
-                                linetype = linetypes,
-                                shape = shapes
-                              )
-                          )
-      )
+               color = 'darkgreen')
+      
   }
+  p <- p + scale_colour_manual(name="Labels",values=colls,
+                      guide = guide_legend(
+                        override.aes =
+                          list(
+                            linetype = linetypes,
+                            shape = shapes
+                          )
+                      )
+  )
   return(p)
 }
 
 ###########################
 # Multiple input functions
-plot_monotoneFit_mult = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE){
+plot_monotoneFit_mult = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE, stat_info=T){
   # if(title=='') title = 'npM'
   n = length(block2)-1
   drugs = block2[[n+1]]
   plots = list()
   for(i in 1:n){
-    plots[[i]] =  plot_monotoneFit(block2[[i]],  dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch)
+    plots[[i]] =  plot_monotoneFit(block2[[i]],  dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch, stat_info)
   }
   # Create row of plots with given title 
   wid  = 6*4

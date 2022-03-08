@@ -106,7 +106,7 @@ sigmoid_fit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, viability_swi
 
 
 
-plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, title = '', viability_switch=TRUE){
+plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, title = '', viability_switch=TRUE, stat_info=T){
   
   m = dim(block2)[2]-2
   if(m==0) m <- m+1
@@ -140,28 +140,20 @@ plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, title = '
   linetypes <<- c(linetypes, "solid", "dotted")
   shapes <<- c(shapes, NA, NA)
   
-  if(viability_switch==TRUE){
-    p <- p +  
-      ggtitle(title) +
-      geom_function(fun = logistic_curve, aes(colour='pL')) + 
-      geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
-      geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F) + 
-      annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
+  p <- p +  
+    ggtitle(title) +
+    geom_function(fun = logistic_curve, aes(colour='pL')) + 
+    geom_hline( yintercept =  y_ic, color='red',  linetype="dotted") +
+    geom_vline(  aes(xintercept =  x_ic, colour="IC"),  linetype="dotted", show.legend = F)
+  
+  if(viability_switch==TRUE & stat_info==T){
+     p = p + annotate(geom = 'text', y= y_lim_right, x =max(block2$doses), 
                hjust=1,
                vjust=1,
                label = text, parse =T, size = 7, 
-               color='red') +
-      scale_colour_manual(name="Labels",values=colls,
-                          guide = guide_legend(
-                            override.aes =
-                              list(
-                                linetype = linetypes,
-                                shape = shapes
-                              )
-                          )
-      )
+               color='red') 
   }
-  if(viability_switch==FALSE){
+  if(viability_switch==FALSE & stat_info==T){
     p <- p +  
       ggtitle(title) +
       geom_function(fun = logistic_curve, aes(colour='pL')) + 
@@ -171,33 +163,32 @@ plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, title = '
                hjust=0,
                vjust=1,
                label = text, parse =T, size = 7, 
-               color='red') +
-      scale_colour_manual(name="Labels",values=colls,
-                          guide = guide_legend(
-                            override.aes =
-                              list(
-                                linetype = linetypes,
-                                shape = shapes
-                              )
-                          )
-      )
+               color='red') 
+      
   }
   
-  # We can add scalecolormanual since there is no other layer  to add on top
-  
+  p = p + scale_colour_manual(name="Labels",values=colls,
+                              guide = guide_legend(
+                                override.aes =
+                                  list(
+                                    linetype = linetypes,
+                                    shape = shapes
+                                  )
+                              )
+  )
   
   return(p)
 }
 
 ###########################
 # Multiple input functions
-plot_sigmodiFit_mult = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE){
+plot_sigmodiFit_mult = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE, stat_info=T){
   # if(title=='') title = 'pL'
   n = length(block2)-1
   drugs = block2[[n+1]]
   plots = list()
   for(i in 1:n){
-    plots[[i]] =  plot_sigmodiFit(block2[[i]], dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch)
+    plots[[i]] =  plot_sigmodiFit(block2[[i]], dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch, stat_info)
   }
   # Create row of plots with given title 
   wid  = 6*4
