@@ -106,7 +106,7 @@ sigmoid_fit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, viability_swi
 
 
 
-plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, title = '', viability_switch=TRUE, stat_info=T){
+plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, title = '', viability_switch=TRUE, stat_info=T, x_ticks=T){
   
   m = dim(block2)[2]-2
   if(m==0) m <- m+1
@@ -133,7 +133,7 @@ plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, title = '
   
   if(title=='') title = 'Parametric Logistic'
   
-  p = plot_initialize(block2)
+  p = plot_initialize(block2, x_ticks=x_ticks)
   p = plot_point_samples(p, block2)
   
   colls <<- c(colls, "pL"="red", "IC"="red")
@@ -182,13 +182,13 @@ plot_sigmodiFit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, title = '
 
 ###########################
 # Multiple input functions
-plot_sigmodiFit_mult = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE, stat_info=T){
+plot_sigmodiFit_mult = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE, stat_info=T, x_ticks=T){
   # if(title=='') title = 'pL'
   n = length(block2)-1
   drugs = block2[[n+1]]
   plots = list()
   for(i in 1:n){
-    plots[[i]] =  plot_sigmodiFit(block2[[i]], dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch, stat_info)
+    plots[[i]] =  plot_sigmodiFit(block2[[i]], dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch, stat_info, x_ticks)
   }
   # Create row of plots with given title 
   wid  = 6*4

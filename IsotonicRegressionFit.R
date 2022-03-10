@@ -111,7 +111,7 @@ monotone_fit = function(block2, dose_dependent_auc=TRUE, p_ic = 50, viability_sw
   return(list_stats)  
 }
 
-plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE, stat_info=T){
+plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE, stat_info=T, x_ticks=T){
   # Gives exatly same fit
   # mono1 = fdrtool::monoreg(x = block2$doses, y = block2$y_mean, type = 'antitonic')
   
@@ -145,7 +145,7 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '
     y_lim_right = max(block2[,2:(m+1)], na.rm=T)
   }
   
-  p = plot_initialize(block2)
+  p = plot_initialize(block2, x_ticks=x_ticks)
   p = plot_point_samples(p, block2)
   
   colls <<- c(colls, "npM"="darkgreen","IC"="red")
@@ -188,13 +188,13 @@ plot_monotoneFit = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '
 
 ###########################
 # Multiple input functions
-plot_monotoneFit_mult = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE, stat_info=T){
+plot_monotoneFit_mult = function( block2, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=TRUE, stat_info=T, x_ticks=T){
   # if(title=='') title = 'npM'
   n = length(block2)-1
   drugs = block2[[n+1]]
   plots = list()
   for(i in 1:n){
-    plots[[i]] =  plot_monotoneFit(block2[[i]],  dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch, stat_info)
+    plots[[i]] =  plot_monotoneFit(block2[[i]],  dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch, stat_info, x_ticks)
   }
   # Create row of plots with given title 
   wid  = 6*4

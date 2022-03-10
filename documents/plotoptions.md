@@ -21,7 +21,7 @@ The plot has the following options which can be selected.
 
 **Options**
 
-- **Show Statistics:** Show in corner of plot IC, AUC, MSE, by default are shown. 
+- **Show Statistics:** Show in corner of plot IC, AUC, MSE and DSG, by default are shown. 
 - **Median/Mean:**  Mean or the median of the responses at that dose, by default it is mean. 
 - **Outliers Kept:** If not selected then samples outside of 2 standard deviations from mean are removed from data. 
 - **Viability over 100:** If not selected then values above 100 are replaced to be 100.

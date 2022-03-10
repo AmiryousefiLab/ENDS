@@ -19,7 +19,7 @@ library(ggrepel)
 
 
 
-plot_initialize = function(block2, title=''){
+plot_initialize = function(block2, title='', x_ticks=T){
   
   m = dim(block2)[2]-2
   if(m==0) m <- m+1
@@ -40,10 +40,16 @@ plot_initialize = function(block2, title=''){
   
   options(scipen=5)
   p = block2 %>% 
-    ggplot(aes(doses, y_mean) )+ 
-    geom_point(size=2.5, stroke=0, shape=16, color='darkblue') +
-    # scale_x_log10(n.breaks=12, limits = c(min(block2[,1]), max(block2[,1]))) + 
-    scale_x_log10(breaks=as.numeric(block2$doses), limits = c(min(block2[,1]), max(block2[,1])), ) + 
+    ggplot(aes(doses, y_mean) ) +
+    geom_point(size=2.5, stroke=0, shape=16, color='darkblue') 
+  
+  if(x_ticks){
+    p = p + scale_x_log10(breaks=as.numeric(block2$doses), limits = c(min(block2[,1]), max(block2[,1]))) 
+  }
+  if(x_ticks==F){
+    p=p+scale_x_log10(n.breaks=12, limits = c(min(block2[,1]), max(block2[,1]))) 
+  }
+    p = p +
     ylim(min(block2[,2:(m+1)], na.rm=T), y_lim_right) +
     ylab('Drug response') + 
     ggtitle( title ) +

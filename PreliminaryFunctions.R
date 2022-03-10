@@ -135,6 +135,10 @@ preprocess_data = function(block, mean_samples = TRUE, keep_outliers = TRUE, ove
   if(m>2 & mean_samples == FALSE){
     block2['y_mean'] = apply(block2[,2:m], 1, median, na.rm=T)
   }
+  if(sum(is.na(block2['y_mean']))>0){
+    block2 <-  block2[-which(is.na(block2['y_mean'])), ]  # remove rows with NA
+  }
+  
   return(block2)
 }
 
@@ -194,9 +198,9 @@ sample_meansquarederror = function(y, samples){
   mean(as.matrix((samples-y)^2) , na.rm=T)
 }
 
-PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T, stat_info=T){
+PlotOverlay = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T, stat_info=T, x_ticks=T){
   # controler for generated plot depending on checkboxes
-  p = plot_initialize(block2, title )
+  p = plot_initialize(block2, title, x_ticks )
   if(is.null(check_boxes) ) return(p)
   
   if("Point Samples" %in% check_boxes)
@@ -310,7 +314,7 @@ create_blocks <- function(tbl){
   return(blocks)
 }
 
-preprocess_data_mult = function( block, mean_samples = TRUE, keep_outliers = TRUE, over_viability = TRUE, drop_values = TRUE, stat_info=T){
+preprocess_data_mult = function( block, mean_samples = TRUE, keep_outliers = TRUE, over_viability = TRUE, drop_values = TRUE){
   n = length(block)-1
   block2 = list()
   for(i in 1:n){
@@ -321,14 +325,14 @@ preprocess_data_mult = function( block, mean_samples = TRUE, keep_outliers = TRU
 }
 
 
-PlotOverlay_mult = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T, stat_info=T){
+PlotOverlay_mult = function(block2, check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = '', viability_switch=T, stat_info=T, x_ticks=T){
   # if(title=='') title = 'npS'
   
   n = length(block2)-1
   drugs = block2[[n+1]]
   plots = list()
   for(i in 1:n){
-    plots[[i]] =  PlotOverlay(block2[[i]], check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch, stat_info)
+    plots[[i]] =  PlotOverlay(block2[[i]], check_boxes, dose_dependent_auc=TRUE, p_ic=50, title = drugs[i], viability_switch, stat_info, x_ticks)
   }
   # Create row of plots with given title 
   wid  = 6*4

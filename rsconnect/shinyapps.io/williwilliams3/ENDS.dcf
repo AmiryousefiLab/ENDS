@@ -5,10 +5,10 @@ account: williwilliams3
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4365083
-bundleId: 5656397
+bundleId: 5667306
 url: https://williwilliams3.shinyapps.io/ENDS/
-when: 1646746647.27308
-lastSyncTime: 1646746647.27309
+when: 1646932361.73525
+lastSyncTime: 1646932361.73527
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .gitattributes
+ignoredFiles: .gitattributes|extras

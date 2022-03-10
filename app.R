@@ -245,6 +245,11 @@ ui <- fluidPage(
                                                                                   status = "success",
                                                                                   right=TRUE,
                                                                                  value = TRUE ),
+                                                                   materialSwitch(inputId = "x_ticks", 
+                                                                                  label = "Doses x-axis",
+                                                                                  status = "success",
+                                                                                  right=TRUE,
+                                                                                  value = TRUE ),
                                                                    materialSwitch(inputId = "mean_switch", 
                                                                                   label = "Median / Mean",
                                                                                   status = "info",
@@ -595,6 +600,7 @@ server <- function(input, output) {
   t4 = reactive(input$NPB_title)
   vs = reactive(input$viability_switch)
   si = reactive(input$stat_info)
+  xt = reactive(input$x_ticks)
   
   cb0_ = reactive(input$MonotonePlot_)
   cb1_ = reactive(input$SigmoidPlot_)
@@ -999,6 +1005,7 @@ server <- function(input, output) {
       NPB_title = t4()
       viability_switch = vs()
       stat_info = si()
+      x_ticks = xt()
       
       tbl = mydata()
       p1 = NULL      
@@ -1010,17 +1017,17 @@ server <- function(input, output) {
       block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
       
       if( check_box2 ){
-        p1 = PlotOverlay_mult(block2, check_boxes, dosedependent_auc, p_ic, NPS_title, viability_switch, stat_info)
+        p1 = PlotOverlay_mult(block2, check_boxes, dosedependent_auc, p_ic, NPS_title, viability_switch, stat_info, x_ticks)
       }
       if( (!check_box2) & check_box0){
-        p1 = plot_monotoneFit_mult(block2, dosedependent_auc, p_ic, NPM_title, viability_switch, stat_info)
+        p1 = plot_monotoneFit_mult(block2, dosedependent_auc, p_ic, NPM_title, viability_switch, stat_info, x_ticks)
       }
       if( (!check_box2) & (!check_box0) & check_box1 ){
-        p1 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title, viability_switch, stat_info)
+        p1 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title, viability_switch, stat_info, x_ticks)
       }
       if( (!check_box2) & (!check_box0) & (!check_box1) & check_box3 ){
         block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-        p1 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info)
+        p1 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info, x_ticks)
       }
       
       p1
@@ -1045,6 +1052,7 @@ server <- function(input, output) {
       NPB_title = t4()
       viability_switch = vs()
       stat_info = si()
+      x_ticks = xt()
       
       tbl = mydata()
       p2 = NULL      
@@ -1057,16 +1065,16 @@ server <- function(input, output) {
       
       
       if(check_box2 & check_box0 ){
-        p2 = plot_monotoneFit_mult(block2, dosedependent_auc, p_ic, NPM_title, viability_switch, stat_info)
+        p2 = plot_monotoneFit_mult(block2, dosedependent_auc, p_ic, NPM_title, viability_switch, stat_info, x_ticks)
       }
       if(check_box2 & !check_box0 & check_box1){
-        p2 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title, viability_switch, stat_info)
+        p2 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title, viability_switch, stat_info, x_ticks)
       }
       if((!check_box2 & !check_box0 & check_box1 & check_box3) |
          (!check_box2 & check_box0 & !check_box1 & check_box3) |
          (check_box2 & !check_box0 & !check_box1 & check_box3)){
         block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-        p2 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info)
+        p2 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info, x_ticks)
       }
       
       if(!is.null(p2)) p2
@@ -1090,6 +1098,7 @@ server <- function(input, output) {
       NPB_title = t4()
       viability_switch = vs()
       stat_info = si()
+      x_ticks = xt()
       
       tbl = mydata()
       p3 = NULL      
@@ -1101,13 +1110,13 @@ server <- function(input, output) {
       block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
       
       if(check_box2 & check_box0 & check_box1){
-        p3 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title, viability_switch, stat_info)
+        p3 = plot_sigmodiFit_mult(block2, dosedependent_auc, p_ic, PL_title, viability_switch, stat_info, x_ticks)
       }
       if( (!check_box2 & check_box0 & check_box1 & check_box3) |
           (check_box2 & !check_box0 & check_box1 & check_box3) |
           (check_box2 & check_box0 & !check_box1 & check_box3) ){
         block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
-        p3 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info)
+        p3 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info, x_ticks)
       }
       p3
       
@@ -1130,6 +1139,7 @@ server <- function(input, output) {
       NPB_title = t4()
       viability_switch = vs()
       stat_info = si()
+      x_ticks = xt()
       
       tbl = mydata()
       p4 = NULL
@@ -1141,7 +1151,7 @@ server <- function(input, output) {
       block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch, drop_values=F)
       
       if(check_box2 & check_box0 & check_box1 & check_box3){
-        p4 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info)
+        p4 = plot_npbFit_mult(block2, dosedependent_auc, p_ic, NPB_title, viability_switch, stat_info, x_ticks)
       }
       showNotification("Plot generated", duration = 1, id = "message")
       p4
@@ -1174,13 +1184,13 @@ server <- function(input, output) {
         n = length(block2)-1
         drugs = block2[[n+1]]
         
-        p1 = PlotOverlay_mult(block2, input$checkgroup1, input$dosedep_auc, input$p_ic, input$NPS_title, input$viability_switch, input$stat_info)
-        p2 = plot_sigmodiFit_mult(block2, input$dosedep_auc, input$p_ic, input$PL_title, input$viability_switch, input$stat_info)
-        p3 = plot_monotoneFit_mult(block2, input$dosedep_auc, input$p_ic, input$NPM_title, input$viability_switch, input$stat_info)
+        p1 = PlotOverlay_mult(block2, input$checkgroup1, input$dosedep_auc, input$p_ic, input$NPS_title, input$viability_switch, input$stat_info, input$x_ticks)
+        p2 = plot_sigmodiFit_mult(block2, input$dosedep_auc, input$p_ic, input$PL_title, input$viability_switch, input$stat_info, input$x_ticks)
+        p3 = plot_monotoneFit_mult(block2, input$dosedep_auc, input$p_ic, input$NPM_title, input$viability_switch, input$stat_info, input$x_ticks)
         if(input$NPBPlot){
           block = create_blocks(tbl)
           block2 = preprocess_data_mult(block, mean_samples = input$mean_switch, keep_outliers = input$outlier_switch, over_viability = input$onehunda_switch, drop_values=F)
-          p4 = plot_npbFit_mult(block2, input$dosedep_auc, input$p_ic, input$NPB_title, input$viability_switch, input$stat_info)
+          p4 = plot_npbFit_mult(block2, input$dosedep_auc, input$p_ic, input$NPB_title, input$viability_switch, input$stat_info, input$x_ticks)
         }
         
         

@@ -3,7 +3,7 @@
 
 # block = df_example
 
-input = list(mean_switch=T, outlier_switch=T, onehunda_switch=T, dosedep_auc=T,
+input = list(mean_switch=T, outlier_switch=F, onehunda_switch=T, dosedep_auc=T,
              checkgroup1 = c("Point Samples" ,
                              "Spline" ,
                              "Min-max bands",
@@ -18,11 +18,12 @@ input = list(mean_switch=T, outlier_switch=T, onehunda_switch=T, dosedep_auc=T,
 
 con = 'ModelEstimations.csv'
 # Testing out multiple input  functions
-mean_switch=T;outlier_switch=T; onehunda_switch=T; dosedependent_auc=T; p_ic=50; NPS_title='title';viability_switch=T
+mean_switch=T;outlier_switch=F; onehunda_switch=T; dosedependent_auc=T; p_ic=50; NPS_title='title';viability_switch=T
 check_boxes = c("Point Samples","Spline", "Drug Span Gradient")
 
 # tbl <- read.csv('/Users/bwilliams/GoogleDrive (syncing)/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS/data/Example4.csv', header=T)
 # tbl <- read.csv('/Users/bwilliams/GoogleDrive (syncing)/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS/data/Example1.csv', header=T)
+# tbl <- read.csv('/Users/bwilliams/GoogleDrive (syncing)/UniversityOfHelsinki/Summer2021/Network Pharmacology Group/ENDS/ENDS/data/Example5.csv', header=T)
 # block = create_blocks(tbl)
 # block2 = preprocess_data_mult(block, mean_samples = mean_switch, keep_outliers = outlier_switch, over_viability = onehunda_switch)
 # p1 = PlotOverlay_mult(block2, check_boxes, dosedependent_auc, p_ic, NPS_title)
