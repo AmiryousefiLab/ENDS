@@ -1,4 +1,3 @@
-### Plot options
 
 The plot has the following options which can be selected.
 
