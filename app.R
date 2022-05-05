@@ -634,13 +634,14 @@ server <- function(input, output) {
   mydata <- reactive({
     
     inFile <- input$file1
+    mms = input$micromolar_switch
     
     if (is.null(inFile))
       return(NULL)
     
     tbl <- read.csv(inFile$datapath, header=input$header)
     # Limit number of drugs to 4
-    tbl = limit_drugs(tbl,  3)
+    tbl = limit_drugs(tbl,  4)
     print(tbl)
     return(tbl)
   })
@@ -650,7 +651,7 @@ server <- function(input, output) {
   observeEvent(input$add_graph1, {
     
     output$Plot4 <- renderPlot({
-      showNotification("Generating plot...", duration = NULL, id = "message")
+      id1 = showNotification("Generating plot...", duration = NULL, id = "message")
       
       drug = d1()
       patient = p1()
@@ -871,7 +872,7 @@ server <- function(input, output) {
       if(!is.null(p4)) p4
       
     })  
-    
+    removeNotification(id1)
     
     # For downloading once plot is generated
     output$download <- downloadHandler(
