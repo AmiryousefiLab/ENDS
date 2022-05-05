@@ -325,7 +325,10 @@ ui <- fluidPage(
                       br(),
                       # p('This section is a manual of how to upload the data, the different plot options and a detailed explanation of the models. It also holds
                       #     a Workshop for playing around with the tool with preloaded data.'),
-                      #p(''),
+                      p('In this section we will go through the technical details of the ENDS, the functionality of the web application, 
+                        a detailed technical explanation of the models and a comparative analysis which was obtained by running the models
+                        through the collection of drug-response data found in ', 
+                        a(href = 'https://www.nature.com/articles/s41586-018-0024-3', 'Roerink  et al. (2018)', .noWS = "outside")),
                       tabsetPanel(
                         tabPanel(
                           strong("Input and Output"),
@@ -636,7 +639,9 @@ server <- function(input, output) {
       return(NULL)
     
     tbl <- read.csv(inFile$datapath, header=input$header)
-    
+    # Limit number of drugs to 4
+    tbl = limit_drugs(tbl,  3)
+    print(tbl)
     return(tbl)
   })
   
