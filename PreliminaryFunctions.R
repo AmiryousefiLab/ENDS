@@ -314,6 +314,19 @@ create_blocks <- function(tbl){
   return(blocks)
 }
 
+limit_drugs <- function(tbl, n_drugs_threshold=4){
+  drugs = tbl[,1] 
+  drugs_unique = unique(drugs)
+  drugs_n = length(drugs_unique)
+  if(drugs_n>n_drugs_threshold){
+    tbl <- tbl[tbl[,1] %in% drugs_unique[1:n_drugs_threshold],]
+    showNotification(paste('Number of drugs limited to:', as.character(n_drugs_threshold)) )
+  }
+  return(tbl)
+  # Raise a banner, only  first 4 drugs used
+}
+
+
 preprocess_data_mult = function( block, mean_samples = TRUE, keep_outliers = TRUE, over_viability = TRUE, drop_values = TRUE){
   n = length(block)-1
   block2 = list()

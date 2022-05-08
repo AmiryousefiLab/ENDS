@@ -325,7 +325,10 @@ ui <- fluidPage(
                       br(),
                       # p('This section is a manual of how to upload the data, the different plot options and a detailed explanation of the models. It also holds
                       #     a Workshop for playing around with the tool with preloaded data.'),
-                      #p(''),
+                      p('In this section we will go through the technical details of the ENDS, the functionality of the web application, 
+                        a detailed technical explanation of the models and a comparative analysis which was obtained by running the models
+                        through the collection of drug-response data found in ', 
+                        a(href = 'https://www.nature.com/articles/s41586-018-0024-3', 'Roerink  et al. (2018)', .noWS = "outside")),
                       tabsetPanel(
                         tabPanel(
                           strong("Input and Output"),
@@ -631,12 +634,15 @@ server <- function(input, output) {
   mydata <- reactive({
     
     inFile <- input$file1
+    mms = input$micromolar_switch
     
     if (is.null(inFile))
       return(NULL)
     
     tbl <- read.csv(inFile$datapath, header=input$header)
-    
+    # Limit number of drugs to 4
+    tbl = limit_drugs(tbl,  4)
+    print(tbl)
     return(tbl)
   })
   
@@ -645,7 +651,7 @@ server <- function(input, output) {
   observeEvent(input$add_graph1, {
     
     output$Plot4 <- renderPlot({
-      showNotification("Generating plot...", duration = NULL, id = "message")
+      id1 = showNotification("Generating plot...", duration = NULL, id = "message")
       
       drug = d1()
       patient = p1()
@@ -866,7 +872,7 @@ server <- function(input, output) {
       if(!is.null(p4)) p4
       
     })  
-    
+    removeNotification(id1)
     
     # For downloading once plot is generated
     output$download <- downloadHandler(

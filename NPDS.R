@@ -18,7 +18,6 @@ library(ggrepel)
 # p = p + new_function(p)
 
 
-
 plot_initialize = function(block2, title='', x_ticks=T){
   
   m = dim(block2)[2]-2
@@ -49,33 +48,34 @@ plot_initialize = function(block2, title='', x_ticks=T){
   if(x_ticks==F){
     p=p+scale_x_log10(n.breaks=12, limits = c(min(block2[,1]), max(block2[,1]))) 
   }
+  # xlab(expression( paste(italic(Dose),phantom(x) ,mu, M )) ) + # Micromolars
     p = p +
-    ylim(min(block2[,2:(m+1)], na.rm=T), y_lim_right) +
-    ylab('Drug response') + 
-    ggtitle( title ) +
-    xlab(expression( paste(italic(Dose),phantom(x) ,mu, M )) ) +
-    theme(plot.title = element_text(face="bold", size = 25, hjust=0.5),
-          axis.title = element_text(face="italic", 
-                                    color = "#267A43", 
-                                    vjust=-0.35,  size=20),
-          panel.grid = element_line(colour = "lightgray"),
-          panel.border = element_rect(fill = NA, 
-                                      colour = "black",
-                                      size = rel(1)),
-          axis.text.x = element_text(face="plain", 
-                                     color="black", 
-                                     size= 10, 
-                                     angle = 40,
-                                     vjust=0.8),
-          axis.text.y = element_text(face="plain", 
-                                     color="black", 
-                                     size= 12),
-          panel.background = element_rect(fill = "white",
-                                          colour = "lightgray",
-                                          size = 0.5, linetype = "solid"),
-          legend.position = 'right',
-          legend.text = element_text(size=15)
-    ) 
+      ylim(min(block2[,2:(m+1)], na.rm=T), y_lim_right) +
+      ylab('Drug response') + 
+      ggtitle( title ) +
+      xlab( 'Dose' ) +
+      theme(plot.title = element_text(face="bold", size = 25, hjust=0.5),
+            axis.title = element_text(face="italic", 
+                                      color = "#267A43", 
+                                      vjust=-0.35,  size=20),
+            panel.grid = element_line(colour = "lightgray"),
+            panel.border = element_rect(fill = NA, 
+                                        colour = "black",
+                                        size = rel(1)),
+            axis.text.x = element_text(face="plain", 
+                                       color="black", 
+                                       size= 10, 
+                                       angle = 40,
+                                       vjust=0.8),
+            axis.text.y = element_text(face="plain", 
+                                       color="black", 
+                                       size= 12),
+            panel.background = element_rect(fill = "white",
+                                            colour = "lightgray",
+                                            size = 0.5, linetype = "solid"),
+            legend.position = 'right',
+            legend.text = element_text(size=15)
+      ) 
   
   return(p)
 }
