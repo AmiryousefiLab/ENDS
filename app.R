@@ -652,8 +652,8 @@ server <- function(input, output) {
       return(NULL)
     
     tbl <- read.csv(inFile$datapath, header=input$header)
-    # Limit number of drugs to 4
-    tbl = limit_drugs(tbl,  4)
+    # Limit number of drugs to 3 (limit at which app plot works)
+    tbl = limit_drugs(tbl,  3)
     print(tbl)
     return(tbl)
   })
