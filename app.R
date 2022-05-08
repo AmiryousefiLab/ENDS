@@ -17,6 +17,18 @@ library(shinyWidgets)
 library(periscope)
 library(gridExtra)
 library(shiny)
+library(MASS)
+library(Matrix)
+library(boot)
+library(cluster)
+library(codetools)
+library(foreign)
+library(lattice)
+library(mgcv)
+library(nlme)
+library(nnet)
+library(survival)
+        
 
 source('PreliminaryFunctions.R')
 source('NPDS.R')
@@ -241,12 +253,12 @@ ui <- fluidPage(
                                                                  column(1),
                                                                  column(11,
                                                                    materialSwitch(inputId = "stat_info", 
-                                                                                  label = "Show Statistics",
+                                                                                  label = "Show Stats",
                                                                                   status = "success",
                                                                                   right=TRUE,
                                                                                  value = TRUE ),
                                                                    materialSwitch(inputId = "x_ticks", 
-                                                                                  label = "Doses x-axis",
+                                                                                  label = "Concentrations",
                                                                                   status = "success",
                                                                                   right=TRUE,
                                                                                   value = TRUE ),
@@ -256,22 +268,22 @@ ui <- fluidPage(
                                                                                   right=TRUE,
                                                                                   value = TRUE ),
                                                                    materialSwitch(inputId = "outlier_switch", 
-                                                                                  label = "Outliers kept",
+                                                                                  label = "Keep Outliers",
                                                                                   status = "info",
                                                                                   right=TRUE,
                                                                                   value = TRUE ),
                                                                    materialSwitch(inputId = "onehunda_switch", 
-                                                                                  label = "Viability over 100",
+                                                                                  label = "Viability Max",
                                                                                   status = "info",
                                                                                   right=TRUE,
                                                                                   value = TRUE ),
                                                                    materialSwitch(inputId = "dosedep_auc", 
-                                                                                  label = "Dose dependent AUC",
+                                                                                  label = "Dose AUC",
                                                                                   status = "danger",
                                                                                   right=TRUE,
                                                                                   value = TRUE ),
                                                                   sliderInput(inputId = "p_ic",
-                                                                             label = "Select value for IC:",
+                                                                             label = "Select IC value:",
                                                                              min = 0,
                                                                              max = 100,
                                                                              value = 50)
