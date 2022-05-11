@@ -5,7 +5,7 @@ account: irscope
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5099988
-bundleId:
+bundleId: 5895904
 url: https://irscope.shinyapps.io/ENDS/
-when: 1652037593.01346
-lastSyncTime: 1652037593.01348
+when: 1652286493.38083
+lastSyncTime: 1652286493.38085
