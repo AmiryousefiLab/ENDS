@@ -1,10 +1,10 @@
-#### Q: *What should I do if the server crashes?*
-
 #### Q: *Epistemic?*
 
 **A:** Yes. Epistemic, as derived from the Greek word *“επιστήμη”* (as often opposed to aleatory uncertainty), is colloquially defined as “…knowledge or relating to knowledge”. However, on a more formal level, it is related to the sureness to the maximum factual level possible such that all the left error or uncertainty is reflected on the data available about a phenomenon. On the other hand, the aleatory type of uncertainty stems not only from the data but also embrace the uncertainty incurred due to our judgment of a phenomenon, so it has more of the subjectivity flavour into that. For example if one counts the number of 6 red balls out of 10 in a bag can say “the probability of a red ball in the bag is 0.6”, while a person who have got the sample of 2 and sees one of them being red get the “the probability of red is 0.5" which is not necessarily the fact but also have the modelling (generalisation) error in its formation and hence is of lower merit compared to the former case. Also note that, not quite completely, but these two concepts often have been paralleled with the objective and subjective judgement. Our emphasis on the nonparametric models here affirm the fact about our position that, in the drug-response settings (specially with low number of repetitions, systematic sampling of the x-axis, etc.), one should be as objective as possible as the proposed parametric models often have a redundant level of aleatory uncertainty that is making the downstream inferential task non-reliable, while on the other hand the simpler (epistemic) nonparametric models are bereft of these pitfalls.
 
 <br/>
+
+#### Q: *What should I do if the server crashes?*
 
 **A:** Occasionally, the web app might disconnect from the server, in that case please reload the page.
 
